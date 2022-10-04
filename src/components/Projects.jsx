@@ -20,7 +20,7 @@ export const Projects = () => {
       title: "Vienna Calling",
       description: "Android Mobile App",
       imgUrl: viennaCallingImg,
-      projectLink: 'https://play.google.com/store/apps/details?id=at.deflow.viennacalling'
+      projectLink: 'https://play.google.com/store/apps/details?id=at.deflow.viennacalling:'
     },
     {
       title: "Supertrumpf",
