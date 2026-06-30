@@ -1,31 +1,47 @@
-# My personal portfolio site created with react
+# Florian — Software & AI Engineer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A high-motion personal portfolio built with Next.js, React and TypeScript. The experience opens on a deliberately outdated portfolio that burns away to reveal the new site underneath.
 
-Built using:
+## Stack
 
-- Front-end library: React
-- CSS framework: React-bootstrap
-- CSS animations library: Animate.css
+- Next.js App Router
+- React + TypeScript
+- Tailwind CSS
+- Framer Motion
+- Lucide icons
+- Canvas particles for the burn intro
 
-### `npm install`
+## Development
 
-So that the necessary node_modules are installed
+```bash
+npm install
+npm run dev
+```
 
-### `npm start`
+Open [http://localhost:3000](http://localhost:3000).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Production
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm run build
+```
 
-### `npm run build`
+The production build is exported to `out/`. Upload the contents of that folder to Hetzner's `public_html` directory. The export includes the canonical `deflow.at` metadata, sitemap, HTTPS redirect and cache headers.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Preview the export with `out/` as the web root. Do not open `out/index.html` below the repository root because the generated `/_next/` asset URLs are intentionally root-relative.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+python3 -m http.server 5500 --directory out
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Then open [http://127.0.0.1:5500/](http://127.0.0.1:5500/).
+
+After uploading, verify the canonical redirects and critical public assets:
+
+```bash
+npm run check:live
+```
+
+## Content
+
+Portfolio copy, projects, links and skill groups live in [`data/portfolio.ts`](data/portfolio.ts). Project artwork is stored in [`public/projects`](public/projects).

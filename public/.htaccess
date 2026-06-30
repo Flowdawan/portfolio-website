@@ -1,0 +1,30 @@
+RewriteEngine On
+Options -MultiViews
+DirectoryIndex index.html
+
+# Keep one canonical host.
+RewriteCond %{HTTP_HOST} !^deflow\.at$ [NC]
+RewriteRule ^ https://deflow.at%{REQUEST_URI} [R=301,L]
+
+# Cloudflare may connect to the Hetzner origin via HTTP even when the visitor
+# uses HTTPS. Respect the forwarded scheme to avoid redirecting HTTPS to itself.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
+RewriteCond %{HTTP:CF-Visitor} !https [NC]
+RewriteRule ^ https://deflow.at%{REQUEST_URI} [R=301,L]
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  <FilesMatch "\.(css|js|woff|woff2|ttf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.(png|jpg|jpeg|gif|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
