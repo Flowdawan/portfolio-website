@@ -18,7 +18,7 @@ export type Project = {
 // Deploy-Ziel hier anpassen.
 export const projects: Project[] = [
   {
-    title: "Hit’n’Bet — sherl.at",
+    title: "Sherl — sherl.at",
     eyebrow: "Featured web app",
     description:
       "A free multiplayer estimation quiz for pub-quiz nights. Players estimate answers, place chips and turn a shared room into a fast, social game — no real money involved.",
@@ -38,14 +38,14 @@ export const projects: Project[] = [
     tags: ["AI", "Machine Learning", "Interactive", "Education"],
   },
   {
-    title: "Spectral",
-    eyebrow: "3D audio visualiser",
+    title: "Marble Machine",
+    eyebrow: "Generative sound toy",
     description:
-      "Drag in a local audio file and fly through a navigable 3D spectrogram of it. No build tools, no libraries, no upload — your file never leaves the browser.",
-    poster: "linear-gradient(135deg, #0a0612 0%, #241036 50%, #06212e 100%)",
-    live: "https://spectral.deflow.at",
+      "A mobile-first, generative marble run: tap pegs, ramps, bumpers and funnels onto the grid and let falling marbles trigger pentatonic tones. Pure Canvas + Web Audio — no build tools, no libraries, no network at runtime.",
+    poster: "linear-gradient(135deg, #0b0e14 0%, #102331 55%, #063038 100%)",
+    live: "https://marble.deflow.at",
     actionLabel: "Open experiment",
-    tags: ["WebGL", "Web Audio", "3D", "Privacy"],
+    tags: ["Canvas", "Web Audio", "Generative", "Mobile"],
   },
   {
     title: "Fluid Ink",

@@ -1569,8 +1569,8 @@ li {
   width: min(100%, 540px);
   overflow: hidden;
   border-radius: 26px;
-  background: rgba(8,13,22,.93);
-  box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 40px 100px rgba(0,0,0,.52);
+  background: rgba(23,20,15,.94);
+  box-shadow: 0 0 0 1px rgba(237,227,206,.12), 0 40px 100px rgba(0,0,0,.52);
   transform: rotate(-2.5deg) translateZ(35px);
   transition-property: transform, box-shadow;
   transition-duration: 450ms;
@@ -1578,7 +1578,7 @@ li {
 }
 
 .featured-project:hover .sherl-preview {
-  box-shadow: 0 0 0 1px rgba(255,255,255,.17), 0 50px 120px rgba(0,0,0,.6);
+  box-shadow: 0 0 0 1px rgba(237,227,206,.18), 0 50px 120px rgba(0,0,0,.6);
   transform: rotate(-.8deg) translateY(-6px) translateZ(35px);
 }
 
@@ -1606,14 +1606,14 @@ li {
 
 .sherl-window-bar p {
   justify-self: center;
-  color: #616a77;
+  color: #8a8069;
   font-family: ui-monospace, monospace;
   font-size: .54rem;
   letter-spacing: .1em;
 }
 
 .sherl-window-bar i {
-  color: #61d48b;
+  color: #ff8a63;
   font-family: ui-monospace, monospace;
   font-size: .49rem;
   font-style: normal;
@@ -1623,7 +1623,7 @@ li {
 .sherl-stage {
   position: relative;
   padding: 28px;
-  background: radial-gradient(circle at 50% 0, rgba(28,91,162,.16), transparent 60%);
+  background: radial-gradient(circle at 50% 0, rgba(245,165,36,.14), transparent 60%);
 }
 
 .sherl-brand {
@@ -1632,24 +1632,29 @@ li {
   gap: 13px;
 }
 
-.sherl-brand img {
+.sherl-mark {
+  display: grid;
   width: 52px;
   height: 52px;
-  border-radius: 13px;
-  outline: 1px solid rgba(255, 255, 255, .1);
-  outline-offset: -1px;
+  place-items: center;
+  border-radius: 15px;
+  background: #f5a524;
+  color: #17140f;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 8px 22px rgba(245,165,36,.28);
 }
 
 .sherl-brand strong {
   display: block;
-  color: white;
+  color: #ede3ce;
   font-size: 1.6rem;
   line-height: 1;
   letter-spacing: -.05em;
 }
 
-.sherl-brand strong span { color: #f4c34d; }
-.sherl-brand p { margin-top: 5px; color: #515d6c; font-size: .47rem; letter-spacing: .25em; }
+.sherl-brand p { margin-top: 7px; color: #8a8069; font-size: .47rem; letter-spacing: .22em; }
 
 .sherl-question {
   margin-top: 24px;
@@ -1662,7 +1667,7 @@ li {
 .sherl-question > div:first-child {
   display: flex;
   justify-content: space-between;
-  color: #738092;
+  color: #a9a08a;
   font-family: ui-monospace, monospace;
   font-size: .51rem;
   letter-spacing: .12em;
@@ -1672,13 +1677,13 @@ li {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #60d68b;
+  color: #ff8a63;
 }
 
 .sherl-question > p {
   max-width: 380px;
   margin-top: 18px;
-  color: #edf1f5;
+  color: #ede3ce;
   font-size: 1.2rem;
   font-weight: 500;
   line-height: 1.3;
@@ -1692,12 +1697,12 @@ li {
   align-items: center;
   justify-content: space-between;
   border-radius: 12px;
-  background: #080c12;
-  box-shadow: 0 0 0 1px rgba(100,231,255,.18);
+  background: #141109;
+  box-shadow: 0 0 0 1px rgba(245,165,36,.28);
 }
 
-.sherl-answer span { color: #657181; font-size: .62rem; }
-.sherl-answer strong { color: #76dffd; font-family: ui-monospace, monospace; font-size: .8rem; font-weight: 500; }
+.sherl-answer span { color: #a9a08a; font-size: .62rem; }
+.sherl-answer strong { color: #f5a524; font-family: ui-monospace, monospace; font-size: .8rem; font-weight: 500; }
 
 .sherl-players {
   display: flex;
@@ -1710,7 +1715,7 @@ li {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #657181;
+  color: #a9a08a;
   font-size: .59rem;
 }
 
@@ -1721,16 +1726,16 @@ li {
   height: 25px;
   margin-left: -7px;
   place-items: center;
-  border: 2px solid #0a0f17;
+  border: 2px solid #17140f;
   border-radius: 50%;
-  background: #37485e;
-  color: white;
+  background: #c98a00;
+  color: #17140f;
   font-size: .48rem;
   font-style: normal;
 }
-.player-stack i:nth-child(2) { background: #6a456b; }
-.player-stack i:nth-child(3) { background: #476747; }
-.player-stack i:nth-child(4) { background: #222b37; }
+.player-stack i:nth-child(2) { background: #ff6a3d; color: #fff; }
+.player-stack i:nth-child(3) { background: #9a6b00; color: #fff; }
+.player-stack i:nth-child(4) { background: #3a342a; color: #ede3ce; }
 
 .sherl-fake-button {
   display: flex;
@@ -1742,8 +1747,8 @@ li {
   gap: 8px;
   border: 0;
   border-radius: 12px;
-  background: #7658e6;
-  color: white;
+  background: #f5a524;
+  color: #17140f;
   font-family: ui-monospace, monospace;
   font-size: .6rem;
   font-weight: 700;
@@ -1757,7 +1762,7 @@ li {
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  background: rgba(115,88,230,.18);
+  background: rgba(245,165,36,.18);
   filter: blur(50px);
 }
 

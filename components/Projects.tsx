@@ -31,8 +31,8 @@ function SherlPreview() {
       </div>
       <div className="sherl-stage">
         <div className="sherl-brand">
-          <Image src="/projects/sherl-icon.png" alt="" width={72} height={72} />
-          <div><strong>Hit’n’<span>Bet</span></strong><p>QUIZ MEETS POKER</p></div>
+          <span className="sherl-mark" aria-hidden="true">≈</span>
+          <div><strong>Sherl</strong><p>ESTIMATE · BET · WIN THE POT</p></div>
         </div>
         <div className="sherl-question">
           <div><span>ROUND 04</span><span><Radio size={12} /> LIVE</span></div>
