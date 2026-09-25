@@ -91,7 +91,13 @@ export function About() {
 
         <div className="principles">
           {principles.map((principle, index) => (
-            <article className="principle" data-reveal style={vars({ "--delay": index })} key={principle.verb}>
+            <article
+              className="principle"
+              data-reveal
+              data-spotlight
+              style={vars({ "--delay": index })}
+              key={principle.verb}
+            >
               <p className="principle__index">
                 0{index + 1} <span>/</span> {principle.verb}
               </p>

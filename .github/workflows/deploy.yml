@@ -1,0 +1,74 @@
+name: Build & deploy deflow.at
+
+# Pull requests are built and checked. A push to `prod` (or a manual run on
+# `prod`) additionally uploads the export to Hetzner.
+on:
+  push:
+    branches: ["prod"]
+  pull_request:
+    branches: ["main", "prod"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+      - name: Store Hetzner-ready export
+        uses: actions/upload-artifact@v4
+        with:
+          name: deflow-at
+          path: out/
+          include-hidden-files: true # keeps .htaccess
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/prod' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://deflow.at
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: deflow-at
+          path: out
+      - name: Check deployment secrets
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          PASSWORD: ${{ secrets.HETZNER_PASSWORD }}
+        run: |
+          if [ -z "$HOST" ] || [ -z "$USER" ] || [ -z "$PASSWORD" ]; then
+            echo "::error title=Deployment not configured::Add the repository secrets HETZNER_HOST, HETZNER_USER and HETZNER_PASSWORD (Settings → Secrets and variables → Actions), then re-run this workflow."
+            exit 1
+          fi
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+      - name: Upload to Hetzner
+        env:
+          DEPLOY_HOST: ${{ secrets.HETZNER_HOST }}
+          DEPLOY_USER: ${{ secrets.HETZNER_USER }}
+          LFTP_PASSWORD: ${{ secrets.HETZNER_PASSWORD }}
+          DEPLOY_PROTOCOL: ${{ vars.HETZNER_PROTOCOL || 'ftps' }}
+          DEPLOY_PATH: ${{ vars.HETZNER_PATH || 'public_html' }}
+        run: bash scripts/deploy-hetzner.sh
+      - name: Verify the live site
+        run: npm run check:live

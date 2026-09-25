@@ -52,6 +52,7 @@
 
 .hero__line--accent {
   --forge-final: var(--ember);
+  --forge-hot: var(--ember-white);
   padding-left: clamp(0px, 10vw, 190px);
   font-family: var(--font-display);
   font-size: 1.1em;
@@ -59,6 +60,25 @@
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 0.88;
+}
+
+/* The hero sinks back and fades as the page scrolls over it (compositor-driven
+   scroll timeline where supported; no JavaScript, no jitter). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .hero__inner {
+      animation: hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 90vh;
+    }
+  }
+}
+
+@keyframes hero-drift {
+  to {
+    opacity: 0.12;
+    translate: 0 14vh;
+  }
 }
 
 .hero__bottom {
@@ -140,16 +160,30 @@
   white-space: nowrap;
 }
 
+/* After forging, the letters stay reactive: the cursor re-heats them (--glow). */
 .forge-ch {
   color: var(--forge-final, var(--text));
+  text-shadow: 0 0 calc(var(--glow, 0) * 0.34em) rgba(255, 106, 43, calc(var(--glow, 0) * 0.85));
+  transition: --glow 0.7s var(--ease-out);
+}
+
+@supports (color: color-mix(in oklab, red 50%, blue)) {
+  .forge-ch {
+    color: color-mix(
+      in oklab,
+      var(--forge-hot, var(--ember-hot)) calc(var(--glow, 0) * 100%),
+      var(--forge-final, var(--text))
+    );
+  }
 }
 
 html.forge-cold .forge-ch:not(.is-hot) {
   color: rgba(243, 237, 228, 0.07);
 }
 
+/* No fill: once cooled, the letter falls back to its (glow-aware) resting style. */
 .forge-ch.is-hot {
-  animation: forge 2.1s var(--ease-out) both;
+  animation: forge 2.1s var(--ease-out);
 }
 
 @keyframes forge {

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { detectSoftwareGL, isLowPower } from "@/lib/gl";
 import { whenIdle } from "@/lib/idle";
-import { intro, resetForge, SEEN_KEY, sweepForge } from "@/lib/intro";
+import { heroChars, intro, resetForge, SEEN_KEY, sweepForge } from "@/lib/intro";
 import { createNoise2D, fbm } from "@/lib/noise";
 import { lockScroll, scrollToTarget, unlockScroll } from "@/lib/scroll";
 import { createBurnLite } from "./burn-lite";
@@ -80,7 +80,7 @@ export function BurnIntro() {
     if (!html.classList.contains("is-intro")) {
       shell.dataset.state = "off";
       completeIntro();
-      sweepForge(22);
+      sweepForge(heroChars(), 22);
       return;
     }
 
@@ -205,12 +205,23 @@ export function BurnIntro() {
       cx = Math.min(Math.max(x, 0), width);
       cy = Math.min(Math.max(y, 0), height);
       computeRMax();
-      targets = Array.from(document.querySelectorAll<HTMLElement>("[data-forge]")).map((el) => {
+      targets = heroChars().map((el) => {
         const rect = el.getBoundingClientRect();
         return { el, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
       });
       shell.dataset.state = "burning";
       shell.removeAttribute("data-cursor");
+      // The page jolts as it catches.
+      site.animate(
+        [
+          { transform: "translate3d(0, 0, 0)" },
+          { transform: "translate3d(-4px, 3px, 0)" },
+          { transform: "translate3d(3px, -2px, 0)" },
+          { transform: "translate3d(-2px, 1px, 0)" },
+          { transform: "translate3d(0, 0, 0)" },
+        ],
+        { duration: 300, easing: "ease-out" },
+      );
       window.dispatchEvent(new Event("cursor:refresh"));
       intro.set("burning");
     };

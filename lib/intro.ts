@@ -38,19 +38,30 @@ export const intro = {
   },
 };
 
-/** Heats the hero letters in reading order when there is no fire to do it. */
-export function sweepForge(delayStep = 26) {
-  const chars = Array.from(document.querySelectorAll<HTMLElement>("[data-forge]"));
-  chars.forEach((char, index) => {
-    if (char.classList.contains("is-hot")) return;
-    char.style.animationDelay = `${120 + index * delayStep}ms`;
-    char.classList.add("is-hot");
-  });
+/** The hero letters the burn heats (the contact headline has its own scene). */
+export function heroChars() {
+  return Array.from(document.querySelectorAll<HTMLElement>("#home [data-forge]"));
 }
 
-export function resetForge() {
-  document.querySelectorAll<HTMLElement>("[data-forge]").forEach((char) => {
-    char.classList.remove("is-hot");
-    char.style.animationDelay = "";
-  });
+/**
+ * Heats letters one after another in reading order — a wave rather than a
+ * flash, because each letter only turns white-hot when its turn comes.
+ */
+export function sweepForge(chars: HTMLElement[], step = 26, delay = 120) {
+  const pending = chars.filter((char) => !char.classList.contains("is-hot"));
+  if (!pending.length) return;
+  const start = performance.now() + delay;
+  let index = 0;
+  const tick = (now: number) => {
+    while (index < pending.length && now >= start + index * step) {
+      pending[index].classList.add("is-hot");
+      index += 1;
+    }
+    if (index < pending.length) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+export function resetForge(chars = heroChars()) {
+  chars.forEach((char) => char.classList.remove("is-hot"));
 }

@@ -1,5 +1,5 @@
 // Mouse-only flourishes: magnetic buttons, spotlight borders, a gentle 3D tilt
-// on the featured project and the heat-reactive footer wordmark.
+// on the featured project, and letters that re-heat under the cursor.
 
 function magnetic(element: HTMLElement) {
   let tx = 0;
@@ -75,37 +75,77 @@ function tilt(element: HTMLElement) {
   };
 }
 
-function wordmark(element: HTMLElement) {
-  const letters = Array.from(element.children) as HTMLElement[];
-  let centers: Array<{ x: number; y: number }> = [];
+/**
+ * Letters that glow when the cursor comes close: the forged hero headline and
+ * the footer wordmark. Letter centres are cached relative to their container,
+ * so scrolling (and the hero's parallax) never invalidates them; updates are
+ * batched into one frame and only touch letters whose glow really changed.
+ * `target` is the element that listens for the pointer.
+ */
+function heatField(
+  container: HTMLElement,
+  letters: HTMLElement[],
+  reachFactor: number,
+  power: number,
+  target: HTMLElement = container,
+) {
+  let offsets: Array<{ x: number; y: number }> = [];
+  let reach = 1;
+  let pointerX = 0;
+  let pointerY = 0;
+  let raf = 0;
+  const current = new Float32Array(letters.length);
+
   const measure = () => {
-    centers = letters.map((letter) => {
+    const box = container.getBoundingClientRect();
+    offsets = letters.map((letter) => {
       const rect = letter.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      return { x: rect.left + rect.width / 2 - box.left, y: rect.top + rect.height / 2 - box.top };
+    });
+    reach = parseFloat(getComputedStyle(container).fontSize) * reachFactor;
+  };
+
+  const set = (index: number, value: number) => {
+    if (Math.abs(value - current[index]) < 0.015 && value !== 0) return;
+    if (value === 0 && current[index] === 0) return;
+    current[index] = value;
+    letters[index].style.setProperty("--glow", value.toFixed(3));
+  };
+
+  const update = () => {
+    raf = 0;
+    if (document.documentElement.classList.contains("is-intro")) return;
+    if (!offsets.length) measure();
+    const box = container.getBoundingClientRect();
+    offsets.forEach((offset, index) => {
+      const distance = Math.hypot(pointerX - (box.left + offset.x), pointerY - (box.top + offset.y));
+      const heat = Math.max(0, 1 - distance / reach);
+      set(index, heat > 0 ? Math.pow(heat, power) : 0);
     });
   };
-  const onEnter = () => measure();
+
   const onMove = (event: PointerEvent) => {
-    if (!centers.length) measure();
-    const reach = element.getBoundingClientRect().height * 0.9;
-    letters.forEach((letter, index) => {
-      const center = centers[index];
-      const distance = Math.hypot(event.clientX - center.x, event.clientY - center.y);
-      const heat = Math.max(0, 1 - distance / reach);
-      letter.style.setProperty("--heat", (heat * heat).toFixed(3));
-    });
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (!raf) raf = requestAnimationFrame(update);
   };
   const onLeave = () => {
-    centers = [];
-    letters.forEach((letter) => letter.style.setProperty("--heat", "0"));
+    cancelAnimationFrame(raf);
+    raf = 0;
+    letters.forEach((_, index) => set(index, 0));
   };
-  element.addEventListener("pointerenter", onEnter);
-  element.addEventListener("pointermove", onMove);
-  element.addEventListener("pointerleave", onLeave);
+  const onResize = () => {
+    offsets = [];
+  };
+
+  target.addEventListener("pointermove", onMove);
+  target.addEventListener("pointerleave", onLeave);
+  window.addEventListener("resize", onResize);
   return () => {
-    element.removeEventListener("pointerenter", onEnter);
-    element.removeEventListener("pointermove", onMove);
-    element.removeEventListener("pointerleave", onLeave);
+    cancelAnimationFrame(raf);
+    target.removeEventListener("pointermove", onMove);
+    target.removeEventListener("pointerleave", onLeave);
+    window.removeEventListener("resize", onResize);
   };
 }
 
@@ -118,6 +158,15 @@ export function initPointerEffects() {
     document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((element) => cleanups.push(tilt(element)));
   }
   document.querySelectorAll<HTMLElement>("[data-spotlight]").forEach((element) => cleanups.push(spotlight(element)));
-  document.querySelectorAll<HTMLElement>("[data-wordmark]").forEach((element) => cleanups.push(wordmark(element)));
+  document.querySelectorAll<HTMLElement>("[data-wordmark]").forEach((element) => {
+    cleanups.push(heatField(element, Array.from(element.children) as HTMLElement[], 0.75, 2));
+  });
+  // The whole hero listens, so letters warm up as the cursor approaches them.
+  const hero = document.getElementById("home");
+  const heroTitle = hero?.querySelector<HTMLElement>(".hero__title");
+  if (hero && heroTitle) {
+    const letters = Array.from(heroTitle.querySelectorAll<HTMLElement>("[data-forge]"));
+    cleanups.push(heatField(heroTitle, letters, 1.25, 1.6, hero));
+  }
   return () => cleanups.forEach((cleanup) => cleanup());
 }

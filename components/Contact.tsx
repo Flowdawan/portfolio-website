@@ -1,6 +1,8 @@
 import { ArrowUpRight, KeyRound } from "lucide-react";
+import type { CSSProperties } from "react";
 import { contact } from "@/data/portfolio";
 import { CopyEmail } from "./CopyEmail";
+import { ForgeLine } from "./Forge";
 import { GitHubMark } from "./GitHubMark";
 import { LocalTime } from "./LocalTime";
 import { ReplayIntro } from "./ReplayIntro";
@@ -22,14 +24,14 @@ export function Contact() {
         <p className="contact__pre" data-reveal>
           Have a complex idea?
         </p>
-        <h2 className="contact__title" id="contact-title" data-reveal="lines">
+        {/* Arrives as cold ash, then catches fire letter by letter — the intro's forge, once more. */}
+        <h2 className="contact__title" id="contact-title" data-reveal="lines" data-forge-scene>
+          <span className="sr-only">Let&apos;s make it feel inevitable.</span>
           <span className="line">
-            <span>Let&apos;s make it</span>
+            <ForgeLine text="Let's make it" />
           </span>
           <span className="line">
-            <span>
-              <em>feel inevitable.</em>
-            </span>
+            <ForgeLine className="contact__accent" text="feel inevitable." />
           </span>
         </h2>
 
@@ -86,7 +88,9 @@ export function Footer() {
 
       <div className="wordmark" data-wordmark aria-hidden="true">
         {Array.from("Florian").map((char, index) => (
-          <span key={index}>{char}</span>
+          <span key={index} style={{ "--i": index } as CSSProperties}>
+            {char}
+          </span>
         ))}
       </div>
 

@@ -242,8 +242,8 @@ function runEmbers(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, progra
   computeIntensity();
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
-  // Lower sections render lazily (content-visibility), so the page height and
-  // the position of the contact section settle over time.
+  // Fonts and lazily loaded previews change the page height over time, which
+  // moves the contact section.
   const layoutObserver = new ResizeObserver(() => {
     measure();
     computeIntensity();

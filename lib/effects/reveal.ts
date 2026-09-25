@@ -1,8 +1,8 @@
 // One shared IntersectionObserver for every `[data-reveal]` element. Hidden
 // states only apply once the page is hydrated (`html.hydrated`), so content is
 // never lost if JavaScript fails. That class is added after the observer's first
-// report, when everything already on screen has been marked visible — no flash,
-// and no forced layout of sections that are still skipped by content-visibility.
+// report, when everything already on screen has been marked visible — no flash
+// and no forced layout.
 export function initReveals() {
   const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
   let ready = false;

@@ -1,17 +1,4 @@
 /* ------------------------------------------------------------------
-   Sections below the hero skip layout and paint until they come near
-   the viewport — the first frame only renders what is actually visible.
-   ------------------------------------------------------------------ */
-.about,
-.expertise,
-.work,
-.contact,
-.footer {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 1400px;
-}
-
-/* ------------------------------------------------------------------
    About
    ------------------------------------------------------------------ */
 .about__statement {
@@ -114,16 +101,18 @@
   line-height: 1.6;
 }
 
+/* Follows the cursor (data-spotlight); rests in the top corner otherwise. */
 .principle__glow {
   position: absolute;
-  top: -45%;
-  right: -35%;
+  top: var(--my, 0%);
+  left: var(--mx, 90%);
   z-index: -1;
-  width: 80%;
+  width: 90%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(255, 106, 43, 0.24), transparent);
   opacity: 0;
+  translate: -50% -50%;
   transition: opacity 0.7s;
 }
 
@@ -701,6 +690,21 @@ html.hydrated .stack-card:not(.is-live) .viz {
   letter-spacing: -0.058em;
 }
 
+.contact__accent {
+  --forge-final: var(--ember);
+  --forge-hot: var(--ember-white);
+}
+
+/* Cold ash until the fire reaches each letter; the glow may then spill out of
+   the line masks. */
+html.hydrated [data-forge-scene] .forge-ch:not(.is-hot) {
+  color: var(--text-3);
+}
+
+[data-forge-scene].is-forging .line {
+  overflow: visible;
+}
+
 .contact__row {
   display: grid;
   grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
@@ -920,20 +924,34 @@ html.hydrated .stack-card:not(.is-live) .viz {
 }
 
 .wordmark span {
-  --heat: 0;
   display: inline-block;
   color: #241d19;
-  text-shadow: 0 0 calc(var(--heat) * 0.22em) rgba(255, 106, 43, calc(var(--heat) * 0.75));
-  transform: translateY(calc(var(--heat) * -0.05em));
-  transition:
-    color 0.7s var(--ease-out),
-    text-shadow 0.7s var(--ease-out),
-    transform 0.7s var(--ease-out);
+  text-shadow: 0 0 calc(var(--glow, 0) * 0.22em) rgba(255, 106, 43, calc(var(--glow, 0) * 0.75));
+  transform: translateY(calc(var(--glow, 0) * -0.05em));
+  transition: --glow 0.7s var(--ease-out);
+}
+
+/* A heat wave runs through the letters whenever the wordmark scrolls into view. */
+.wordmark.is-waving span {
+  animation: glow-wave 1.6s var(--ease-in-out) backwards;
+  animation-delay: calc(var(--i, 0) * 95ms);
+}
+
+@keyframes glow-wave {
+  0% {
+    --glow: 0;
+  }
+  36% {
+    --glow: 0.9;
+  }
+  100% {
+    --glow: 0;
+  }
 }
 
 @supports (color: color-mix(in oklab, red 50%, blue)) {
   .wordmark span {
-    color: color-mix(in oklab, var(--ember) calc(var(--heat) * 100%), #241d19);
+    color: color-mix(in oklab, var(--ember) calc(var(--glow, 0) * 100%), #241d19);
   }
 }
 
