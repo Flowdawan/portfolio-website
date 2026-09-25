@@ -55,6 +55,8 @@ const files = [
   ["/robots.txt", "text/plain"],
   ["/sitemap.xml", "application/xml"],
   ["/projects/sherl-icon.png", "image/png"],
+  ["/og.jpg", "image/jpeg"],
+  ["/icon-192.png", "image/png"],
   ["/publickey_deflow.asc", "text/plain"],
 ];
 

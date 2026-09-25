@@ -1,95 +1,61 @@
-"use client";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
+import type { CSSProperties } from "react";
+import { ForgeLine } from "./Forge";
+import { LocalTime } from "./LocalTime";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowDown, ArrowUpRight, Braces, Cpu, Sparkles, Workflow } from "lucide-react";
-import { MagneticLink } from "./MotionPrimitives";
+const late = (order: number) => ({ "--late": order }) as CSSProperties;
 
-const item = {
-  hidden: { opacity: 0, y: 22, filter: "blur(7px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-};
-
-export function Hero({ ready }: { ready: boolean }) {
-  const reduced = useReducedMotion();
-
+export function Hero() {
   return (
-    <section className="hero section-shell" id="home">
-      <motion.div
-        className="hero-copy"
-        initial="hidden"
-        animate={ready ? "visible" : "hidden"}
-        variants={{
-          visible: { transition: { staggerChildren: reduced ? 0 : 0.1 } },
-        }}
-      >
-        <motion.div variants={item} transition={{ duration: reduced ? 0 : 0.6 }} className="availability-pill">
-          <span className="availability-dot" />
-          Software & AI Engineer · Austria
-        </motion.div>
-        <motion.p variants={item} transition={{ duration: reduced ? 0 : 0.65 }} className="hero-name">
-          Florian
-        </motion.p>
-        <motion.h1 variants={item} transition={{ duration: reduced ? 0 : 0.7 }}>
-          Building software
-          <span>that thinks ahead.</span>
-        </motion.h1>
-        <motion.p variants={item} transition={{ duration: reduced ? 0 : 0.7 }} className="hero-intro">
-          I design and engineer modern products, AI systems and intelligent workflows — from the first idea to secure production.
-        </motion.p>
-        <motion.div variants={item} transition={{ duration: reduced ? 0 : 0.7 }} className="hero-actions">
-          <MagneticLink href="#projects" className="primary-button">
-            Explore selected work <ArrowUpRight size={18} strokeWidth={1.8} />
-          </MagneticLink>
-          <MagneticLink href="#about" className="text-button">
-            More about me <ArrowDown size={17} strokeWidth={1.8} />
-          </MagneticLink>
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        className="hero-system"
-        initial={{ opacity: 0, scale: 0.94, filter: "blur(12px)" }}
-        animate={ready ? { opacity: 1, scale: 1, filter: "blur(0px)" } : undefined}
-        transition={{ duration: reduced ? 0 : 0.9, delay: reduced ? 0 : 0.28, ease: [0.2, 0, 0, 1] }}
-        aria-label="Visual map connecting AI, APIs, RAG and automation"
-      >
-        <div className="system-halo" />
-        <div className="system-ring system-ring-outer" />
-        <div className="system-ring system-ring-inner" />
-        <div className="system-axis system-axis-x" />
-        <div className="system-axis system-axis-y" />
-
-        <div className="system-core">
-          <Sparkles size={20} />
-          <strong>AI</strong>
-          <span>orchestration</span>
+    <section className="hero" id="home" aria-labelledby="hero-title">
+      <div className="hero__glow" aria-hidden="true" />
+      <div className="container hero__inner">
+        <div className="hero__meta" data-late style={late(0)}>
+          <p className="label">
+            <span className="status-dot" aria-hidden="true" />
+            Florian — Software &amp; AI Engineer
+          </p>
+          <p className="label hero__meta-right">Based in Austria · 47.52° N, 14.55° E</p>
         </div>
-        <div className="orbit-node orbit-node-one"><Cpu size={16} /><span>LLM</span></div>
-        <div className="orbit-node orbit-node-two"><Braces size={16} /><span>API</span></div>
-        <div className="orbit-node orbit-node-three"><Workflow size={16} /><span>RAG</span></div>
-        <div className="orbit-node orbit-node-four"><Sparkles size={16} /><span>MCP</span></div>
 
-        <div className="system-status">
-          <div><span>SYS / 04</span><span className="status-online">live</span></div>
-          <p>Intelligence layer</p>
-          <div className="status-wave" aria-hidden="true">
-            {Array.from({ length: 15 }).map((_, index) => <i key={index} />)}
+        <h1 className="hero__title" id="hero-title">
+          <span className="sr-only">Building software that thinks ahead.</span>
+          <ForgeLine className="hero__line" text="Building software" />
+          <ForgeLine className="hero__line hero__line--accent" text="that thinks ahead." />
+        </h1>
+
+        <div className="hero__bottom">
+          <p className="hero__intro" data-late style={late(1)}>
+            I design and engineer modern products, AI systems and intelligent workflows — from the first idea to secure
+            production.
+          </p>
+          <div className="hero__actions" data-late style={late(2)}>
+            <a href="#projects" className="button button--primary" data-magnetic>
+              <span className="roll">
+                <span>Explore selected work</span>
+              </span>
+              <ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" />
+            </a>
+            <a href="#about" className="button button--ghost" data-magnetic>
+              <span className="roll">
+                <span>More about me</span>
+              </span>
+              <ArrowDown size={17} strokeWidth={1.8} aria-hidden="true" />
+            </a>
           </div>
         </div>
-        <div className="system-coordinate system-coordinate-left">47.5162° N</div>
-        <div className="system-coordinate system-coordinate-right">14.5501° E</div>
-      </motion.div>
+      </div>
 
-      <motion.a
-        href="#about"
-        className="scroll-cue"
-        initial={{ opacity: 0 }}
-        animate={ready ? { opacity: 1 } : undefined}
-        transition={{ delay: reduced ? 0 : 0.9 }}
-        aria-label="Scroll to about section"
-      >
-        <span>Scroll to explore</span><i />
-      </motion.a>
+      <div className="container hero__foot" data-late style={late(3)}>
+        <p className="label">Available for select projects · 2026</p>
+        <a href="#about" className="scroll-cue" aria-label="Scroll to the about section">
+          <span>Scroll</span>
+          <i aria-hidden="true" />
+        </a>
+        <p className="label hero__foot-right">
+          Vienna <LocalTime />
+        </p>
+      </div>
     </section>
   );
 }
