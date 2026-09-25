@@ -1,0 +1,48 @@
+RewriteEngine On
+Options -MultiViews
+DirectoryIndex index.html
+
+# Keep one canonical host.
+RewriteCond %{HTTP_HOST} !^deflow\.at$ [NC]
+RewriteRule ^ https://deflow.at%{REQUEST_URI} [R=301,L]
+
+# Cloudflare may connect to the Hetzner origin via HTTP even when the visitor
+# uses HTTPS. Respect the forwarded scheme to avoid redirecting HTTPS to itself.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
+RewriteCond %{HTTP:CF-Visitor} !https [NC]
+RewriteRule ^ https://deflow.at%{REQUEST_URI} [R=301,L]
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/svg+xml .svg
+  AddType image/webp .webp
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
+# Compress text assets (HTML, CSS, JS, SVG, JSON, the RSC .txt payloads).
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml application/xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  # Hashed build output and fonts never change under the same name.
+  <FilesMatch "\.(css|js|woff|woff2|ttf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+
+  # Pages and their RSC payloads change with every deploy: always revalidate.
+  <FilesMatch "\.(html|txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

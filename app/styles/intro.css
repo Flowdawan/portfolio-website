@@ -1,0 +1,463 @@
+/* ------------------------------------------------------------------
+   Burn intro shell
+   ------------------------------------------------------------------ */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  touch-action: none;
+}
+
+html.is-intro .intro,
+.intro[data-state="done"] {
+  display: block;
+}
+
+.intro[data-state="done"] {
+  pointer-events: none;
+}
+
+.intro__site-wrap,
+.intro__site {
+  position: absolute;
+  inset: 0;
+}
+
+.intro__site {
+  overflow: hidden;
+}
+
+.intro--replay .intro__site {
+  animation: crt-on 0.55s var(--ease-out) both;
+}
+
+.intro__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 1.3s ease;
+}
+
+.intro[data-state="done"] .intro__canvas {
+  opacity: 0;
+}
+
+.intro__ui {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px clamp(14px, 3vw, 28px);
+  pointer-events: none;
+}
+
+.intro__hint,
+.intro__skip {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(12, 10, 9, 0.8);
+  color: rgba(255, 255, 255, 0.86);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.intro__hint {
+  opacity: 0;
+  translate: 0 10px;
+  animation: hint-in 0.7s 0.45s var(--ease-out) forwards;
+}
+
+.intro__hint::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 10px var(--ember);
+  content: "";
+  animation: coal 1s ease-in-out infinite;
+}
+
+.intro__hint-touch {
+  display: none;
+}
+
+.intro:not([data-state="idle"]) .intro__hint {
+  animation: hint-out 0.35s ease forwards;
+}
+
+.intro__skip {
+  margin-left: auto;
+  pointer-events: auto;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+.intro__skip:hover {
+  background: rgba(30, 24, 20, 0.95);
+  color: #fff;
+}
+
+.intro__skip kbd {
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  font-size: 0.62rem;
+}
+
+.intro[data-state="done"] .intro__ui {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+@media (hover: none) {
+  .intro__hint-fine {
+    display: none;
+  }
+
+  .intro__hint-touch {
+    display: inline;
+  }
+
+  .intro__skip kbd {
+    display: none;
+  }
+}
+
+@keyframes hint-in {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes hint-out {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+
+@keyframes crt-on {
+  0% {
+    filter: brightness(4);
+    transform: scale(1, 0.004);
+  }
+  45% {
+    filter: brightness(2.2);
+    transform: scale(1, 0.004);
+  }
+  100% {
+    filter: brightness(1);
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   The 2001 homepage (deliberately awful)
+   ------------------------------------------------------------------ */
+.old-site {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background-color: #06115b;
+  background-image:
+    radial-gradient(#fff 1px, transparent 1px),
+    radial-gradient(#00ffff 1px, transparent 1px);
+  background-position:
+    0 0,
+    13px 13px;
+  background-size: 26px 26px;
+  color: #ffff00;
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Comic Neue", cursive;
+  line-height: 1.35;
+}
+
+.old-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  background: repeating-linear-gradient(45deg, transparent 0 28px, rgba(255, 0, 255, 0.18) 29px 30px);
+  pointer-events: none;
+}
+
+.old-header,
+.old-layout,
+.old-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.old-header {
+  padding: 16px 20px 0;
+  text-align: center;
+}
+
+.old-logo {
+  display: inline-block;
+  padding: 9px 26px;
+  border: 6px ridge #00ff00;
+  background: #ff00c8;
+  color: #00ffff;
+  font-size: clamp(1.6rem, 5vw, 4.3rem);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-shadow:
+    3px 3px #000,
+    5px 5px #ff0000;
+  transform: rotate(-1deg);
+}
+
+.old-marquee {
+  width: min(980px, 95%);
+  margin: 13px auto 0;
+  overflow: hidden;
+  border: 3px outset #ddd;
+  background: #000;
+  color: #00ff00;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.old-marquee span {
+  display: inline-block;
+  min-width: 100%;
+  padding: 4px;
+  animation: old-marquee 7s linear infinite;
+}
+
+.old-layout {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 700px);
+  gap: 20px;
+  justify-content: center;
+  width: min(980px, calc(100% - 24px));
+  margin: 20px auto 0;
+}
+
+.old-sidebar {
+  height: fit-content;
+  padding: 8px;
+  border: 7px ridge #bdbdbd;
+  background: #008080;
+  text-align: center;
+}
+
+.old-menu-title {
+  margin: 0 0 8px;
+  color: white;
+  font-weight: 700;
+}
+
+.old-link {
+  display: block;
+  margin: 7px 0;
+  padding: 7px 4px;
+  border: 3px outset #eee;
+  background: #c0c0c0;
+  color: #0000ee;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.old-counter {
+  margin-top: 14px;
+  color: white;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.65rem;
+}
+
+.old-counter strong {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 5px;
+  background: #000;
+  color: #ff3322;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+}
+
+.old-content {
+  padding: 14px 22px 20px;
+  border: 8px groove #c0c0c0;
+  background: #000080;
+  text-align: center;
+  box-shadow: 8px 8px 0 #000;
+}
+
+.old-title {
+  margin: 8px 0;
+  color: #00ffff;
+  font-size: clamp(1.8rem, 4vw, 3.3rem);
+  font-weight: 900;
+  text-shadow: 3px 3px #ff00ff;
+}
+
+.old-copy {
+  max-width: 540px;
+  margin: 12px auto;
+  color: white;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.old-blink {
+  color: #ff2626;
+  font-size: 1.25rem;
+  font-weight: 900;
+  animation: old-blink 0.9s step-end infinite;
+}
+
+.old-construction {
+  font-size: 2rem;
+}
+
+.old-rainbow {
+  padding: 5px;
+  background: linear-gradient(90deg, red, yellow, lime, aqua, fuchsia, red);
+  color: #000;
+  font-weight: 900;
+}
+
+.old-rule {
+  height: 8px;
+  margin: 14px 0;
+  background: repeating-linear-gradient(90deg, #ffff00 0 12px, #ff00ff 12px 24px, #00ffff 24px 36px);
+}
+
+.old-table {
+  width: min(520px, 100%);
+  margin: 18px auto;
+  border-collapse: collapse;
+  background: #eee;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
+}
+
+.old-table td {
+  padding: 7px;
+  border: 2px inset #777;
+}
+
+.old-table td:first-child {
+  width: 34%;
+  background: #ffea00;
+  font-weight: 700;
+}
+
+.old-online {
+  color: #008000;
+  font-weight: 900;
+}
+
+.old-button {
+  display: inline-block;
+  min-width: 180px;
+  padding: 10px 20px;
+  border: 5px outset white;
+  background: #ff0000;
+  color: #ffff00;
+  font-weight: 900;
+  cursor: pointer;
+  animation: old-button 0.55s step-end infinite;
+}
+
+.old-midi {
+  margin-top: 12px;
+  color: #9dff9d;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.72rem;
+}
+
+.old-footer {
+  width: min(980px, calc(100% - 24px));
+  margin: 18px auto;
+  padding: 6px;
+  background: #000;
+  color: #00ff00;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.69rem;
+  text-align: center;
+}
+
+@keyframes old-marquee {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes old-blink {
+  0%,
+  49% {
+    visibility: visible;
+  }
+  50%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes old-button {
+  0%,
+  49% {
+    background: #ff0000;
+  }
+  50%,
+  100% {
+    background: #00aa00;
+  }
+}
+
+@media (max-width: 620px) {
+  .old-layout {
+    display: block;
+    width: calc(100% - 18px);
+  }
+
+  .old-sidebar,
+  .old-footer {
+    display: none;
+  }
+
+  .old-content {
+    padding: 12px 10px 20px;
+  }
+
+  .old-header {
+    padding-inline: 8px;
+  }
+
+  .old-logo {
+    padding-inline: 9px;
+    font-size: 1.5rem;
+  }
+}

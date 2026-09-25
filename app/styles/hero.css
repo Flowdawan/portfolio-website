@@ -1,0 +1,281 @@
+.hero {
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  padding-top: calc(var(--nav-h) + clamp(20px, 5vh, 60px));
+  overflow: clip;
+}
+
+.hero__glow {
+  position: absolute;
+  bottom: -38vh;
+  left: 50%;
+  width: min(1500px, 150vw);
+  height: 78vh;
+  background: radial-gradient(closest-side, rgba(255, 106, 43, 0.3), rgba(217, 58, 20, 0.12) 45%, transparent 76%);
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(28px, 5.5vh, 64px);
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.hero__meta .label:first-child {
+  color: var(--text-2);
+}
+
+.hero__title {
+  font-size: clamp(3.3rem, 10.7vw, 11.6rem);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+}
+
+.hero__line {
+  display: block;
+}
+
+.hero__line--accent {
+  --forge-final: var(--ember);
+  --forge-hot: var(--ember-white);
+  padding-left: clamp(0px, 10vw, 190px);
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.88;
+}
+
+/* The hero sinks back and fades as the page scrolls over it (compositor-driven
+   scroll timeline where supported; no JavaScript, no jitter). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .hero__inner {
+      animation: hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 90vh;
+    }
+  }
+}
+
+@keyframes hero-drift {
+  to {
+    opacity: 0.12;
+    translate: 0 14vh;
+  }
+}
+
+.hero__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px 60px;
+}
+
+.hero__intro {
+  max-width: 44ch;
+  color: var(--text-2);
+  font-size: clamp(1.05rem, 1.35vw, 1.24rem);
+  line-height: 1.6;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero__foot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+  padding-block: 28px 30px;
+}
+
+.hero__foot-right {
+  justify-self: end;
+}
+
+.scroll-cue {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-3);
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.scroll-cue:hover {
+  color: var(--text);
+}
+
+.scroll-cue i {
+  position: relative;
+  width: 1px;
+  height: 40px;
+  overflow: hidden;
+  background: var(--line-2);
+}
+
+.scroll-cue i::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: var(--ember);
+  box-shadow: 0 0 8px var(--ember);
+  content: "";
+  animation: drip 2.4s var(--ease-in-out) infinite;
+}
+
+/* ------------------------------------------------------------------
+   Forged letters
+   ------------------------------------------------------------------ */
+.forge-word {
+  white-space: nowrap;
+}
+
+/* After forging, the letters stay reactive: the cursor re-heats them (--glow). */
+.forge-ch {
+  color: var(--forge-final, var(--text));
+  text-shadow: 0 0 calc(var(--glow, 0) * 0.34em) rgba(255, 106, 43, calc(var(--glow, 0) * 0.85));
+  transition: --glow 0.7s var(--ease-out);
+}
+
+@supports (color: color-mix(in oklab, red 50%, blue)) {
+  .forge-ch {
+    color: color-mix(
+      in oklab,
+      var(--forge-hot, var(--ember-hot)) calc(var(--glow, 0) * 100%),
+      var(--forge-final, var(--text))
+    );
+  }
+}
+
+html.forge-cold .forge-ch:not(.is-hot) {
+  color: rgba(243, 237, 228, 0.07);
+}
+
+/* No fill: once cooled, the letter falls back to its (glow-aware) resting style. */
+.forge-ch.is-hot {
+  animation: forge 2.1s var(--ease-out);
+}
+
+@keyframes forge {
+  0% {
+    color: #fffaf0;
+    text-shadow:
+      0 0 0.05em #fff1d6,
+      0 0 0.2em #ffb65c,
+      0 0 0.55em rgba(255, 106, 43, 0.85);
+  }
+  16% {
+    color: #ffdca6;
+    text-shadow:
+      0 0 0.05em #ffd9a0,
+      0 0 0.2em #ff8a3d,
+      0 0 0.5em rgba(255, 74, 28, 0.7);
+  }
+  42% {
+    color: #ff9a52;
+    text-shadow:
+      0 0 0.02em rgba(255, 138, 61, 0.6),
+      0 0 0.14em rgba(255, 106, 43, 0.5),
+      0 0 0.4em rgba(217, 58, 20, 0.3);
+  }
+  100% {
+    color: var(--forge-final, var(--text));
+    text-shadow:
+      0 0 0 transparent,
+      0 0 0 transparent,
+      0 0 0 transparent;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.06);
+  }
+}
+
+@keyframes drip {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(260%);
+  }
+}
+
+@media (max-width: 900px) {
+  .hero__foot {
+    grid-template-columns: 1fr auto;
+  }
+
+  .hero__foot .scroll-cue {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero {
+    min-height: 100svh;
+  }
+
+  .hero__meta .hero__meta-right {
+    display: none;
+  }
+
+  .hero__title {
+    font-size: clamp(3rem, 15.5vw, 4.6rem);
+    line-height: 0.94;
+  }
+
+  .hero__line--accent {
+    padding-left: 0;
+  }
+
+  .hero__actions {
+    display: grid;
+    width: 100%;
+  }
+
+  .hero__actions .button {
+    justify-content: space-between;
+  }
+
+  .hero__foot {
+    padding-block: 20px 24px;
+  }
+}
