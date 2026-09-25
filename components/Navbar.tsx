@@ -1,97 +1,186 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { MagneticLink } from "./MotionPrimitives";
+import { ArrowUpRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { contact } from "@/data/portfolio";
+import { lockScroll, onScroll, unlockScroll } from "@/lib/scroll";
+import { LocalTime } from "./LocalTime";
 
 const links = [
-  { label: "About", href: "#about" },
-  { label: "Expertise", href: "#expertise" },
-  { label: "Work", href: "#projects" },
+  { id: "about", label: "About" },
+  { id: "expertise", label: "Expertise" },
+  { id: "projects", label: "Work" },
+  { id: "contact", label: "Contact" },
 ];
 
-export function Navbar({ ready }: { ready: boolean }) {
+export function Navbar() {
+  const headerRef = useRef<HTMLElement>(null);
+  const fuseRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const reduced = useReducedMotion();
+  const [active, setActive] = useState("");
 
+  // Hide while reading down, return on the way up; drive the burning fuse.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const header = headerRef.current;
+    const fuse = fuseRef.current;
+    if (!header || !fuse) return;
+    let lastY = 0;
+    let hidden = false;
+    // Scrollable height is cached (and refreshed on resize) so the scroll
+    // handler never forces a layout.
+    let max = 1;
+    const measure = () => {
+      max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    };
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(document.body);
+    const off = onScroll((y) => {
+      fuse.style.setProperty("--progress", Math.min(1, Math.max(0, y / max)).toFixed(4));
+      header.dataset.scrolled = String(y > 24);
+      const delta = y - lastY;
+      if (Math.abs(delta) < 6) return;
+      const shouldHide = delta > 0 && y > 180;
+      if (shouldHide !== hidden) {
+        hidden = shouldHide;
+        header.dataset.hidden = String(hidden);
+      }
+      lastY = y;
+    });
+    return () => {
+      off();
+      resizeObserver.disconnect();
+    };
   }, []);
 
+  // The hero is observed too, so jumping back to the top clears the marker.
+  useEffect(() => {
+    const sections = ["home", ...links.map((link) => link.id)]
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    lockScroll();
+    const firstLink = menuRef.current?.querySelector<HTMLElement>("a");
+    const focusTimer = window.setTimeout(() => firstLink?.focus(), 80);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+      if (event.key === "Tab" && menuRef.current) {
+        const focusables = [toggleRef.current, ...menuRef.current.querySelectorAll<HTMLElement>("a")].filter(
+          (el): el is HTMLElement => Boolean(el),
+        );
+        const index = focusables.indexOf(document.activeElement as HTMLElement);
+        const next = event.shiftKey ? index - 1 : index + 1;
+        if (next < 0 || next >= focusables.length) {
+          event.preventDefault();
+          focusables[(next + focusables.length) % focusables.length].focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener("keydown", onKey);
+      unlockScroll();
+    };
+  }, [open]);
+
   return (
-    <motion.header
-      initial={{ opacity: 0, y: -12 }}
-      animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
-      transition={{ duration: reduced ? 0 : 0.55, ease: [0.2, 0, 0, 1] }}
-      className={`site-header ${scrolled || open ? "site-header-scrolled" : ""}`}
-    >
-      <nav className="nav-shell" aria-label="Primary navigation">
-        <a href="#home" className="brand" aria-label="Florian — back to top">
-          <span className="brand-mark">F</span>
-          <span className="brand-copy">Florian<span className="brand-dot">.</span></span>
-        </a>
+    <>
+      <div className="fuse-progress" ref={fuseRef} aria-hidden="true">
+        <span className="fuse-progress__burn" />
+        <span className="fuse-progress__spark" />
+      </div>
 
-        <div className="desktop-nav">
-          {links.map((link) => (
-            <a key={link.href} href={link.href} className="nav-link">
-              {link.label}
-            </a>
-          ))}
-        </div>
+      <header className="nav" ref={headerRef} data-open={open}>
+        <div className="container nav__bar">
+          <a href="#home" className="brand" aria-label="Florian — back to top" onClick={() => setOpen(false)}>
+            <span className="brand__name">Florian</span>
+            <span className="brand__dot" aria-hidden="true" />
+          </a>
 
-        <div className="nav-actions">
-          <MagneticLink href="#contact" className="nav-cta">
-            Let&apos;s talk <ArrowUpRight size={15} strokeWidth={1.8} />
-          </MagneticLink>
-          <button
-            type="button"
-            className="menu-button"
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            aria-expanded={open}
-            onClick={() => setOpen((current) => !current)}
-          >
-            <span className={open ? "menu-icon menu-icon-active" : "menu-icon"}>
-              <X size={21} />
-            </span>
-            <span className={open ? "menu-icon menu-icon-hidden" : "menu-icon menu-icon-active"}>
-              <Menu size={21} />
-            </span>
-          </button>
-        </div>
-      </nav>
-
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            className="mobile-nav"
-            initial={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
-            transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-          >
-            {links.map((link, index) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.06 }}
+          <nav className="nav__links" aria-label="Primary">
+            {links.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className="nav__link"
+                aria-current={active === link.id ? "location" : undefined}
               >
-                <span>0{index + 1}</span>{link.label}
-              </motion.a>
+                <span className="roll">
+                  <span>{link.label}</span>
+                </span>
+              </a>
             ))}
-            <a href="https://github.com/Flowdawan" target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>
-              <span>04</span>GitHub <ArrowUpRight size={18} />
+          </nav>
+
+          <div className="nav__right">
+            <span className="label nav__time">
+              Vienna <LocalTime />
+            </span>
+            <a href="#contact" className="button button--small" data-magnetic>
+              <span className="roll">
+                <span>Let&apos;s talk</span>
+              </span>
+              <ArrowUpRight size={15} strokeWidth={1.8} aria-hidden="true" />
             </a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+            <button
+              ref={toggleRef}
+              type="button"
+              className="nav__toggle"
+              aria-expanded={open}
+              aria-controls="site-menu"
+              onClick={() => setOpen((current) => !current)}
+            >
+              <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+              <span className="nav__toggle-lines" aria-hidden="true">
+                <i />
+                <i />
+              </span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="menu" id="site-menu" ref={menuRef} data-open={open} inert={!open}>
+        <nav aria-label="Menu">
+          <ol className="menu__links">
+            {links.map((link, index) => (
+              <li key={link.id} style={{ transitionDelay: open ? `${120 + index * 60}ms` : "0ms" }}>
+                <a href={`#${link.id}`} onClick={() => setOpen(false)}>
+                  <span>0{index + 1}</span>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div className="menu__foot">
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          <a href={contact.github} target="_blank" rel="noopener noreferrer">
+            GitHub <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+          <span className="label">
+            Vienna <LocalTime />
+          </span>
+        </div>
+      </div>
+    </>
   );
 }

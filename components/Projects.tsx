@@ -1,139 +1,117 @@
-import Image from "next/image";
-import { ArrowUpRight, Play, Radio, Users } from "lucide-react";
-import { projects, type Project } from "@/data/portfolio";
+import { ArrowUpRight } from "lucide-react";
+import type { CSSProperties } from "react";
+import { contact, projects } from "@/data/portfolio";
 import { GitHubMark } from "./GitHubMark";
-import { Reveal, TiltCard } from "./MotionPrimitives";
-
-function ProjectActions({ project }: { project: Project }) {
-  return (
-    <div className="project-actions">
-      {project.live && (
-        <a href={project.live} target="_blank" rel="noopener noreferrer">
-          {project.actionLabel ?? "Live demo"}<ArrowUpRight size={16} />
-        </a>
-      )}
-      {project.github && (
-        <a href={project.github} target="_blank" rel="noopener noreferrer">
-          <GitHubMark width={16} height={16} />Source
-        </a>
-      )}
-    </div>
-  );
-}
-
-function SherlPreview() {
-  return (
-    <div className="sherl-preview" aria-hidden="true">
-      <div className="sherl-window-bar">
-        <span /><span /><span />
-        <p>sherl.at</p>
-        <i>LIVE</i>
-      </div>
-      <div className="sherl-stage">
-        <div className="sherl-brand">
-          <span className="sherl-mark" aria-hidden="true">≈</span>
-          <div><strong>Sherl</strong><p>ESTIMATE · BET · WIN THE POT</p></div>
-        </div>
-        <div className="sherl-question">
-          <div><span>ROUND 04</span><span><Radio size={12} /> LIVE</span></div>
-          <p>How many kilometres of coastline does Europe have?</p>
-          <div className="sherl-answer"><span>Your estimate</span><strong>38,000 km</strong></div>
-        </div>
-        <div className="sherl-players">
-          <div><Users size={14} /><span>4 players connected</span></div>
-          <div className="player-stack"><i>F</i><i>M</i><i>L</i><i>+1</i></div>
-        </div>
-        <div className="sherl-fake-button">PLACE YOUR BET <Play size={14} fill="currentColor" /></div>
-      </div>
-      <div className="sherl-glow" />
-    </div>
-  );
-}
-
-function ProjectCard({ project, index }: { project: Project; index: number }) {
-  return (
-    <Reveal delay={(index % 2) * 0.08}>
-      <TiltCard className="project-card">
-        <div className="project-image-shell">
-          {project.image ? (
-            <Image
-              src={project.image}
-              alt={`${project.title} project preview`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ) : (
-            <div
-              className="project-poster"
-              style={project.poster ? { background: project.poster } : undefined}
-              aria-hidden="true"
-            >
-              <span className="project-poster-eyebrow">{project.eyebrow}</span>
-              <span className="project-poster-title">{project.title}</span>
-            </div>
-          )}
-          <a
-            href={project.live ?? project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="project-image-link"
-            aria-label={`Open ${project.title}`}
-          >
-            <ArrowUpRight size={22} />
-          </a>
-          <span className="project-number">0{index + 2}</span>
-        </div>
-        <div className="project-card-copy">
-          <p className="project-eyebrow">{project.eyebrow}</p>
-          <h3>{project.title}</h3>
-          <p className="project-description">{project.description}</p>
-          <div className="project-tags">
-            {project.tags.map((tag) => <span key={tag}>{tag}</span>)}
-          </div>
-          <ProjectActions project={project} />
-        </div>
-      </TiltCard>
-    </Reveal>
-  );
-}
+import { LivePreview } from "./LivePreview";
+import { SherlMock } from "./SherlMock";
 
 export function Projects() {
-  const [featured, ...rest] = projects;
+  const featured = projects.find((project) => project.featured) ?? projects[0];
+  const lab = projects.filter((project) => project !== featured);
 
   return (
-    <section className="content-section section-shell projects-section" id="projects">
-      <Reveal className="section-heading projects-heading">
-        <div className="section-kicker"><span>03</span>Selected work</div>
-        <h2>Built to be used.<br /><span>Made to be remembered.</span></h2>
-        <p>A selection of products, experiments and systems — from native Android to multiplayer web apps.</p>
-      </Reveal>
-
-      <Reveal className="featured-wrap" delay={0.08}>
-        <TiltCard className="featured-project">
-          <div className="featured-visual"><SherlPreview /></div>
-          <div className="featured-copy">
-            <div className="featured-index"><span>01</span><i />FEATURED</div>
-            <p className="project-eyebrow">{featured.eyebrow}</p>
-            <h3>{featured.title}</h3>
-            <p className="project-description">{featured.description}</p>
-            <div className="project-tags">
-              {featured.tags.map((tag) => <span key={tag}>{tag}</span>)}
-            </div>
-            <ProjectActions project={featured} />
+    <section className="section work" id="projects" aria-labelledby="work-title">
+      <div className="container">
+        <header className="section-head section-head--split">
+          <div>
+            <p className="kicker" data-reveal>
+              <span>03</span>Selected work
+            </p>
+            <h2 className="section-title" id="work-title" data-reveal="lines">
+              <span className="line">
+                <span>Built to be used.</span>
+              </span>
+              <span className="line">
+                <span>
+                  <em>Made to be remembered.</em>
+                </span>
+              </span>
+            </h2>
           </div>
-        </TiltCard>
-      </Reveal>
+          <p className="section-lede" data-reveal>
+            Products and experiments — from a multiplayer party game to playable explainers. Every preview below is
+            running live: move your cursor over it.
+          </p>
+        </header>
 
-      <div className="projects-grid">
-        {rest.map((project, index) => <ProjectCard project={project} index={index} key={project.title} />)}
+        <article className="feature" data-reveal data-tilt>
+          <div className="feature__visual">
+            <SherlMock />
+          </div>
+          <div className="feature__copy">
+            <p className="feature__index">
+              <span>01</span>
+              <i aria-hidden="true" />
+              Featured
+            </p>
+            <p className="eyebrow">{featured.eyebrow}</p>
+            <h3>{featured.title}</h3>
+            <p className="feature__desc">{featured.description}</p>
+            <ul className="tags" aria-label="Tags">
+              {featured.tags.map((tag) => (
+                <li key={tag}>{tag}</li>
+              ))}
+            </ul>
+            {featured.live && (
+              <a className="button button--primary" href={featured.live} target="_blank" rel="noopener noreferrer" data-magnetic>
+                <span className="roll">
+                  <span>{featured.actionLabel}</span>
+                </span>
+                <ArrowUpRight size={18} strokeWidth={1.8} aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        </article>
+
+        <div className="lab">
+          {lab.map((project, index) => (
+            <article
+              className="lab-card"
+              data-reveal
+              data-preview-host
+              data-spotlight
+              data-cursor="Open"
+              style={{ "--delay": index % 2 } as CSSProperties}
+              key={project.title}
+            >
+              <div className="lab-card__preview">
+                {project.preview && <LivePreview kind={project.preview} />}
+                <span className="lab-card__number">0{index + 2}</span>
+                {project.previewHint && <span className="lab-card__hint">{project.previewHint}</span>}
+                <span className="lab-card__open" aria-hidden="true">
+                  <ArrowUpRight size={20} strokeWidth={1.8} />
+                </span>
+              </div>
+              <div className="lab-card__body">
+                <p className="eyebrow">{project.eyebrow}</p>
+                <h3>
+                  <a className="lab-card__link" href={project.live ?? project.github} target="_blank" rel="noopener noreferrer">
+                    {project.title}
+                  </a>
+                </h3>
+                <p className="lab-card__desc">{project.description}</p>
+                <ul className="tags" aria-label="Tags">
+                  {project.tags.map((tag) => (
+                    <li key={tag}>{tag}</li>
+                  ))}
+                </ul>
+                <span className="lab-card__cta" aria-hidden="true">
+                  {project.actionLabel ?? "Open"} <ArrowUpRight size={15} strokeWidth={1.8} />
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="work__more" data-reveal>
+          <p>More experiments live in the lab.</p>
+          <a href={contact.repositories} target="_blank" rel="noopener noreferrer" className="link-arrow">
+            <GitHubMark width={17} height={17} />
+            View all GitHub repositories
+            <ArrowUpRight size={16} strokeWidth={1.8} aria-hidden="true" />
+          </a>
+        </div>
       </div>
-
-      <Reveal className="all-work-link">
-        <p>More experiments live in the lab.</p>
-        <a href="https://github.com/Flowdawan?tab=repositories" target="_blank" rel="noopener noreferrer">
-          View all GitHub repositories <ArrowUpRight size={17} />
-        </a>
-      </Reveal>
     </section>
   );
 }
