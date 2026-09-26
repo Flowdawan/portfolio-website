@@ -67,8 +67,8 @@ jobs:
           DEPLOY_HOST: ${{ secrets.HETZNER_HOST }}
           DEPLOY_USER: ${{ secrets.HETZNER_USER }}
           LFTP_PASSWORD: ${{ secrets.HETZNER_PASSWORD }}
-          DEPLOY_PROTOCOL: ${{ vars.HETZNER_PROTOCOL || 'ftps' }}
-          DEPLOY_PATH: ${{ vars.HETZNER_PATH || 'public_html' }}
+          DEPLOY_PROTOCOL: ${{ vars.HETZNER_PROTOCOL || secrets.HETZNER_PROTOCOL || 'ftps' }}
+          DEPLOY_PATH: ${{ vars.HETZNER_PATH || secrets.HETZNER_PATH || 'public_html' }}
         run: bash scripts/deploy-hetzner.sh
       - name: Verify the live site
         run: npm run check:live
