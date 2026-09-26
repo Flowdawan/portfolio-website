@@ -52,7 +52,7 @@ It needs three repository secrets (Settings → Secrets and variables → Action
 | `HETZNER_USER` | FTP user name |
 | `HETZNER_PASSWORD` | FTP password |
 
-Optional repository variables: `HETZNER_PROTOCOL` (`ftps` by default, or `sftp`) and `HETZNER_PATH` (`public_html` by default).
+Optional (as repository variables or secrets): `HETZNER_PROTOCOL` (`ftps` by default, or `sftp`) and `HETZNER_PATH` (`public_html` by default).
 
 ### Manual deployment
 

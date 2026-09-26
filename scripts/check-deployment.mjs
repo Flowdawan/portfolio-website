@@ -57,7 +57,7 @@ const files = [
   ["/projects/sherl-icon.png", "image/png"],
   ["/og.jpg", "image/jpeg"],
   ["/icon-192.png", "image/png"],
-  ["/publickey_deflow.asc", "text/plain"],
+  ["/publickey_deflow.asc", ["text/plain", "application/pgp-keys"]],
 ];
 
 for (const [pathname, expectedType] of files) {
@@ -65,7 +65,7 @@ for (const [pathname, expectedType] of files) {
     const requestedUrl = new URL(pathname, canonical).href;
     const { response, finalUrl } = await followRedirects(requestedUrl);
     const contentType = response.headers.get("content-type") ?? "";
-    const okay = response.status === 200 && finalUrl === requestedUrl && contentType.includes(expectedType);
+    const okay = response.status === 200 && finalUrl === requestedUrl && [expectedType].flat().some((type) => contentType.includes(type));
     console.log(`${okay ? "PASS" : "FAIL"} ${pathname} [${response.status}] ${contentType}`);
     if (!okay) failed = true;
   } catch (error) {
