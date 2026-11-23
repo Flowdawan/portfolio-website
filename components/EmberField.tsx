@@ -6,10 +6,10 @@ import { whenIdle } from "@/lib/idle";
 import { intro } from "@/lib/intro";
 import { onScroll } from "@/lib/scroll";
 
-// Embers rising from the bottom of the hero (and again behind the contact
-// section). Every particle is animated statelessly in the vertex shader from a
-// seed and the clock, so the CPU cost is one uniform upload per frame. The loop
-// sleeps whenever neither section is on screen or the tab is hidden.
+// Ash rising from the bottom of the hero after the fire. Every particle is
+// animated statelessly in the vertex shader from a seed and the clock, so the
+// CPU cost is one uniform upload per frame. The loop sleeps whenever the hero
+// is off screen or the tab is hidden.
 
 const VS = /* glsl */ `#version 300 es
 in vec4 aSeed; // x0, phase, speed, size
@@ -77,10 +77,11 @@ void main() {
   vec2 q = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(q, q);
   if (r2 > 1.0) discard;
-  float fall = vKind > 0.5 ? (1.0 - r2) * (1.0 - r2) : exp(-r2 * 9.0) * 1.35 + exp(-r2 * 2.2) * 0.22;
-  vec3 c = mix(vec3(0.72, 0.13, 0.03), vec3(1.0, 0.5, 0.15), smoothstep(0.2, 0.62, vHeat));
-  c = mix(c, vec3(1.0, 0.88, 0.64), smoothstep(0.8, 1.0, vHeat));
-  float a = fall * vAlpha;
+  // Ash on paper: specks leave the fire still red and cool to graphite.
+  if (vKind > 0.5) discard;
+  float fall = 1.0 - smoothstep(0.3, 1.0, r2);
+  vec3 c = mix(vec3(0.2, 0.18, 0.16), vec3(0.878, 0.25, 0.106), smoothstep(0.78, 1.0, vHeat));
+  float a = clamp(fall * vAlpha * 0.5, 0.0, 1.0);
   o = vec4(c * a, a);
 }`;
 
@@ -122,7 +123,7 @@ function runEmbers(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, progra
 
   gl.useProgram(program);
   gl.enable(gl.BLEND);
-  gl.blendFunc(gl.ONE, gl.ONE);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
   const dpr = low ? 1 : Math.min(window.devicePixelRatio || 1, 1.75);
   let width = 1;
@@ -138,13 +139,10 @@ function runEmbers(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, progra
   };
 
   const hero = document.getElementById("home");
-  const contact = document.getElementById("contact");
   let heroBottom = 1;
-  let contactTop = Infinity;
   const measure = () => {
     const y = window.scrollY;
     if (hero) heroBottom = hero.getBoundingClientRect().bottom + y;
-    if (contact) contactTop = contact.getBoundingClientRect().top + y;
   };
 
   let scrollY = 0;
@@ -152,9 +150,8 @@ function runEmbers(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, progra
   let lift = 0;
   const computeIntensity = () => {
     const heroPart = 1 - Math.min(1, Math.max(0, scrollY / (heroBottom * 0.85)));
-    const contactPart = Math.min(1, Math.max(0, (scrollY + height - contactTop) / (height * 0.9)));
-    intensity = Math.max(heroPart, contactPart * 0.9);
-    lift = heroPart > contactPart ? scrollY * 0.45 : 0;
+    intensity = heroPart;
+    lift = scrollY * 0.45;
   };
 
   let mouseX = -9999;
@@ -242,8 +239,7 @@ function runEmbers(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, progra
   computeIntensity();
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
-  // Fonts and lazily loaded previews change the page height over time, which
-  // moves the contact section.
+  // Web fonts change the hero's height after the first paint.
   const layoutObserver = new ResizeObserver(() => {
     measure();
     computeIntensity();

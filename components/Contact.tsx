@@ -10,7 +10,6 @@ import { ReplayIntro } from "./ReplayIntro";
 export function Contact() {
   return (
     <section className="section contact" id="contact" aria-labelledby="contact-title">
-      <div className="contact__glow" aria-hidden="true" />
       <div className="container">
         <div className="contact__top">
           <p className="kicker" data-reveal>
@@ -99,7 +98,7 @@ export function Footer() {
         <p>
           Vienna <LocalTime />
         </p>
-        <p>Set in Host Grotesk &amp; Instrument Serif</p>
+        <p>Set in Host Grotesk &amp; Geist Mono</p>
       </div>
     </footer>
   );

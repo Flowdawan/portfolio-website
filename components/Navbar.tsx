@@ -116,13 +116,16 @@ export function Navbar() {
           </a>
 
           <nav className="nav__links" aria-label="Primary">
-            {links.map((link) => (
+            {links.map((link, index) => (
               <a
                 key={link.id}
                 href={`#${link.id}`}
                 className="nav__link"
                 aria-current={active === link.id ? "location" : undefined}
               >
+                <span className="nav__num" aria-hidden="true">
+                  0{index + 1}
+                </span>
                 <span className="roll">
                   <span>{link.label}</span>
                 </span>
