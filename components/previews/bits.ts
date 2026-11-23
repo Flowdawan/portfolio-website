@@ -78,23 +78,19 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
         const row = rows[r];
         if (age === 0) {
           ctx.fillStyle = INK.ember;
-          ctx.shadowColor = "rgba(255, 106, 43, 0.9)";
-          ctx.shadowBlur = 10;
         } else {
-          ctx.shadowBlur = 0;
           const fade = Math.max(0.08, 1 - age / (rowCount * 0.95));
-          ctx.fillStyle = age < 4 ? `rgba(255, 182, 92, ${0.35 + fade * 0.5})` : `rgba(243, 237, 228, ${fade * 0.55})`;
+          ctx.fillStyle = age < 4 ? `rgba(224, 64, 27, ${0.35 + fade * 0.5})` : `rgba(20, 18, 16, ${fade * 0.8})`;
         }
         for (let c = 0; c < cols; c += 1) {
           if (row[c]) ctx.fillRect(c * cell + 1.25, y, size, size);
         }
       }
-      ctx.shadowBlur = 0;
       ctx.font = font;
       const label = `rule ${RULE} · gen ${generation}`;
       ctx.fillStyle = INK.bg;
       ctx.fillRect(10, 10, ctx.measureText(label).width + 12, 22);
-      ctx.fillStyle = "rgba(243, 237, 228, 0.55)";
+      ctx.fillStyle = "rgba(20, 18, 16, 0.7)";
       ctx.fillText(label, 16, 24);
     },
   };

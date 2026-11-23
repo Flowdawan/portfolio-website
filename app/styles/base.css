@@ -1,36 +1,46 @@
 /* ------------------------------------------------------------------
-   Tokens
+   Tokens — paper & charcoal
+   Warm paper, black ink, one signal colour (vermilion). No glows, no
+   gradients: hierarchy comes from scale, weight, rules and the grid.
    ------------------------------------------------------------------ */
 :root {
-  --bg: #0c0a09;
-  --bg-2: #110e0c;
-  --surface: #161210;
-  --line: rgba(243, 237, 228, 0.1);
-  --line-2: rgba(243, 237, 228, 0.17);
-  --text: #f3ede4;
-  --text-2: #b8afa3;
-  --text-3: #8c8278;
-  --ember: #ff6a2b;
-  --ember-hot: #ffb65c;
-  --ember-white: #fff1d6;
-  --ember-deep: #d93a14;
-  --heat: linear-gradient(100deg, #ffd28a 0%, #ff8a3d 48%, #ff4a1c 100%);
+  --paper: #eeeae2;
+  --paper-2: #e5e0d6;
+  --paper-3: #dcd6ca;
+  --ink: #141210;
+  --ink-2: #514c45;
+  --ink-3: #868076;
+  --signal: #e0401b;
+  --rule: rgba(20, 18, 16, 0.14);
+  --rule-2: rgba(20, 18, 16, 0.32);
+
+  /* Legacy names used by the intro, the line drawings and the canvases. */
+  --bg: var(--paper);
+  --bg-2: var(--paper-2);
+  --surface: var(--paper-2);
+  --line: var(--rule);
+  --line-2: var(--rule-2);
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --text-3: var(--ink-3);
+  --ember: var(--signal);
+  --ember-hot: var(--signal);
+  --ember-white: #fff3dc;
+  --ember-deep: #b8300f;
 
   --font-body: var(--font-sans), system-ui, sans-serif;
-  --font-display: var(--font-serif), Georgia, serif;
   --font-code: var(--font-mono), ui-monospace, monospace;
 
-  --gutter: clamp(20px, 4.4vw, 64px);
-  --max: 1440px;
-  --nav-h: 76px;
-  --radius: 28px;
+  --gutter: clamp(18px, 3.4vw, 48px);
+  --col-gap: clamp(14px, 1.6vw, 24px);
+  --max: 1520px;
+  --nav-h: 68px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* How hot a letter currently glows (0–1). Registered so it can transition and
-   animate smoothly; everything that glows derives colour and shadow from it. */
+/* How hot a letter currently is (0–1). Registered so it can transition. */
 @property --glow {
   syntax: "<number>";
   inherits: false;
@@ -47,23 +57,23 @@
 }
 
 html {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--paper);
+  color: var(--ink);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scrollbar-color: #3b312b var(--bg);
+  scrollbar-color: #b9b2a6 var(--paper);
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   overflow-x: clip;
-  background: var(--bg);
+  background: var(--paper);
   font-family: var(--font-body);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.55;
   font-feature-settings: "ss01", "cv11";
 }
 
@@ -109,7 +119,7 @@ canvas {
 h1,
 h2,
 h3 {
-  font-weight: 500;
+  font-weight: 560;
   text-wrap: balance;
 }
 
@@ -127,14 +137,13 @@ kbd {
 }
 
 ::selection {
-  background: var(--ember);
-  color: #160b06;
+  background: var(--ink);
+  color: var(--paper);
 }
 
 :focus-visible {
-  outline: 2px solid var(--ember-hot);
-  outline-offset: 4px;
-  border-radius: 6px;
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
 }
 
 /* ------------------------------------------------------------------
@@ -153,9 +162,32 @@ main,
   padding-inline: var(--gutter);
 }
 
+/* The layout grid, printed faintly on the paper: four columns that every
+   section aligns to. */
+.paper-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  pointer-events: none;
+}
+
+.paper-grid::before {
+  display: block;
+  height: 100%;
+  background-image: linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: calc((100% + var(--col-gap)) / 4) 100%;
+  border-right: 1px solid var(--rule);
+  content: "";
+  opacity: 0.45;
+}
+
 .section {
   position: relative;
-  padding-block: clamp(110px, 15vw, 200px);
+  padding-block: clamp(96px, 12vw, 180px);
 }
 
 .sr-only {
@@ -169,13 +201,12 @@ main,
 
 .skip-link {
   position: fixed;
-  top: 14px;
-  left: 14px;
+  top: 12px;
+  left: 12px;
   z-index: 400;
   padding: 12px 18px;
-  border-radius: 999px;
-  background: var(--text);
-  color: var(--bg);
+  background: var(--ink);
+  color: var(--paper);
   font-weight: 600;
   transform: translateY(-160%);
   transition: transform 0.25s var(--ease-out);
@@ -185,145 +216,144 @@ main,
   transform: none;
 }
 
-.label {
+.label,
+.eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--text-3);
+  color: var(--ink-3);
   font-family: var(--font-code);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  font-weight: 450;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.eyebrow {
-  color: var(--text-3);
-  font-family: var(--font-code);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+/* A small square of signal colour — the only ornament on the page. */
+.mark,
+.status-dot {
+  display: inline-block;
+  flex: none;
+  width: 0.5em;
+  height: 0.5em;
+  background: var(--signal);
 }
 
 .status-dot {
-  position: relative;
-  flex: none;
   width: 7px;
   height: 7px;
-  border-radius: 50%;
-  background: var(--ember);
-  box-shadow: 0 0 12px var(--ember);
+  animation: blink-soft 2.4s steps(1) infinite;
 }
 
-.status-dot::after {
-  position: absolute;
-  inset: -5px;
-  border: 1px solid var(--ember);
-  border-radius: 50%;
-  content: "";
-  opacity: 0;
-  animation: ping 2.6s var(--ease-out) infinite;
-}
-
+/* Section header: rule, index, name — then the title on the grid. */
 .kicker {
+  position: relative;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 14px;
-  color: var(--text-2);
+  padding-top: 14px;
+  color: var(--ink);
   font-family: var(--font-code);
-  font-size: 0.74rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+.kicker::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: var(--ink);
+  content: "";
+  transform-origin: left center;
+}
+
 .kicker span {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  color: var(--ember);
+  color: var(--signal);
+}
+
+.kicker span::before {
+  content: "(";
 }
 
 .kicker span::after {
-  width: 44px;
-  height: 1px;
-  background: var(--line-2);
-  content: "";
+  content: ")";
 }
 
-/* The rule after the section number burns in like a fuse, then cools. */
-html.hydrated .kicker[data-reveal] span::after {
-  transform-origin: left center;
-  transition:
-    transform 1.1s var(--ease-out) 0.15s,
-    background-color 1.2s ease 1.05s,
-    box-shadow 1.2s ease 1.05s;
+html.hydrated .kicker[data-reveal]::before {
+  transition: transform 1.2s var(--ease-out) 0.1s;
 }
 
-html.hydrated .kicker[data-reveal]:not(.is-in) span::after {
-  background-color: var(--ember-hot);
-  box-shadow: 0 0 10px var(--ember);
+html.hydrated .kicker[data-reveal]:not(.is-in)::before {
   transform: scaleX(0);
 }
 
 .kicker--quiet {
-  color: var(--text-3);
+  color: var(--ink-3);
+}
+
+.kicker--quiet::before {
+  background: var(--rule-2);
 }
 
 .section-head {
   display: grid;
-  gap: 30px;
-  margin-bottom: clamp(64px, 9vw, 120px);
+  gap: clamp(28px, 4vw, 56px);
+  margin-bottom: clamp(56px, 8vw, 112px);
 }
 
 .section-head--split {
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.65fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--col-gap);
   align-items: end;
-  gap: 30px 64px;
 }
 
 .section-head--split > div {
   display: grid;
-  gap: 30px;
+  grid-column: 1 / -1;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.section-head--split .section-lede {
+  grid-column: 4 / 5;
 }
 
 .section-title {
-  font-size: clamp(3rem, 7.3vw, 7.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.048em;
+  font-size: clamp(2.9rem, 8.4vw, 9.4rem);
+  font-weight: 560;
+  line-height: 0.86;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
 }
 
-.section-title em,
-.contact__accent {
-  color: var(--ember);
-  font-family: var(--font-display);
-  font-size: 1.07em;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.015em;
+.section-title em {
+  color: var(--ink-3);
 }
 
 .section-lede {
-  max-width: 36ch;
-  padding-bottom: 0.6rem;
-  color: var(--text-2);
-  font-size: clamp(1rem, 1.3vw, 1.14rem);
-  line-height: 1.6;
+  max-width: 34ch;
+  color: var(--ink-2);
+  font-size: clamp(0.98rem, 1.15vw, 1.08rem);
+  line-height: 1.55;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 6px;
+  margin-top: 22px;
 }
 
 .tags li {
-  padding: 6px 10px;
-  border-radius: 8px;
-  color: var(--text-2);
-  box-shadow: inset 0 0 0 1px var(--line);
+  padding: 5px 8px 4px;
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--rule-2);
   font-family: var(--font-code);
-  font-size: 0.7rem;
-  letter-spacing: 0.03em;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .link-arrow {
@@ -331,31 +361,38 @@ html.hydrated .kicker[data-reveal]:not(.is-in) span::after {
   min-height: 44px;
   align-items: center;
   gap: 10px;
-  color: var(--text);
-  transition: color 0.3s;
+  color: var(--ink);
+  background: linear-gradient(currentColor, currentColor) 0 calc(100% - 10px) / 100% 1px no-repeat;
+  transition:
+    color 0.25s,
+    background-size 0.45s var(--ease-out);
 }
 
 .link-arrow:hover {
-  color: var(--ember-hot);
+  color: var(--signal);
+  background-size: 0% 1px;
+  background-position: 100% calc(100% - 10px);
 }
 
 /* ------------------------------------------------------------------
-   Buttons + rolling labels
+   Buttons — rectangular ink blocks; the label rolls on hover
    ------------------------------------------------------------------ */
 .button {
   position: relative;
   display: inline-flex;
-  min-height: 54px;
+  min-height: 56px;
   align-items: center;
-  gap: 12px;
-  padding: 0 22px 0 26px;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 0 18px 0 20px;
   overflow: hidden;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 550;
+  font-size: 0.92rem;
+  font-weight: 560;
   letter-spacing: -0.01em;
   isolation: isolate;
-  transition: color 0.35s var(--ease-out), background-color 0.35s, box-shadow 0.45s var(--ease-out);
+  transition:
+    color 0.3s var(--ease-out),
+    box-shadow 0.3s;
 }
 
 .button svg {
@@ -367,38 +404,40 @@ html.hydrated .kicker[data-reveal]:not(.is-in) span::after {
   transform: translate(2px, -2px);
 }
 
-.button--primary {
-  background: var(--text);
-  color: #150e0a;
-}
-
-.button--primary::before {
+.button::before {
   position: absolute;
   inset: 0;
   z-index: -1;
-  border-radius: inherit;
-  background: var(--heat);
   content: "";
-  transform: translateY(102%);
-  transition: transform 0.6s var(--ease-out);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.5s var(--ease-out);
 }
 
-.button--primary:hover {
-  box-shadow: 0 14px 44px -10px rgba(255, 106, 43, 0.7);
-}
-
-.button--primary:hover::before {
+.button:hover::before {
   transform: none;
 }
 
+.button--primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.button--primary::before {
+  background: var(--signal);
+}
+
 .button--ghost {
-  color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--line-2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.button--ghost::before {
+  background: var(--ink);
 }
 
 .button--ghost:hover {
-  background: rgba(243, 237, 228, 0.07);
-  box-shadow: inset 0 0 0 1px rgba(243, 237, 228, 0.28);
+  color: var(--paper);
 }
 
 .button--ghost:hover svg {
@@ -406,16 +445,16 @@ html.hydrated .kicker[data-reveal]:not(.is-in) span::after {
 }
 
 .button--small {
-  min-height: 42px;
-  padding: 0 16px 0 19px;
-  background: rgba(243, 237, 228, 0.07);
-  box-shadow: inset 0 0 0 1px var(--line);
-  font-size: 0.85rem;
+  min-height: 40px;
+  gap: 14px;
+  padding: 0 12px 0 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
 }
 
-.button--small:hover {
-  background: var(--text);
-  color: #150e0a;
+.button--small::before {
+  background: var(--signal);
 }
 
 .roll {
@@ -429,7 +468,7 @@ html.hydrated .kicker[data-reveal]:not(.is-in) span::after {
 .roll > span {
   display: block;
   text-shadow: 0 1.3em 0 currentColor;
-  transition: transform 0.55s var(--ease-out);
+  transition: transform 0.5s var(--ease-out);
 }
 
 a:hover .roll > span,
@@ -442,20 +481,20 @@ button:hover .roll > span {
    ------------------------------------------------------------------ */
 html.hydrated [data-reveal]:not([data-reveal="lines"]) {
   transition:
-    opacity 1s var(--ease-out),
-    translate 1.2s var(--ease-out);
-  transition-delay: calc(var(--delay, 0) * 110ms);
+    opacity 0.9s var(--ease-out),
+    translate 1.1s var(--ease-out);
+  transition-delay: calc(var(--delay, 0) * 90ms);
 }
 
-html.hydrated [data-reveal]:not([data-reveal="lines"]):not(.is-in) {
+html.hydrated [data-reveal]:not([data-reveal="lines"]):not(.kicker):not(.is-in) {
   opacity: 0;
-  translate: 0 36px;
+  translate: 0 28px;
 }
 
 [data-reveal="lines"] .line {
   display: block;
-  margin: 0 -0.1em -0.12em;
-  padding: 0 0.1em 0.12em;
+  margin: 0 -0.06em -0.1em;
+  padding: 0 0.06em 0.1em;
   overflow: hidden;
 }
 
@@ -464,15 +503,19 @@ html.hydrated [data-reveal]:not([data-reveal="lines"]):not(.is-in) {
 }
 
 html.hydrated [data-reveal="lines"] .line > span {
-  transition: transform 1.25s var(--ease-out);
+  transition: transform 1.1s var(--ease-out);
 }
 
 html.hydrated [data-reveal="lines"] .line ~ .line > span {
-  transition-delay: 0.1s;
+  transition-delay: 0.08s;
+}
+
+html.hydrated [data-reveal="lines"] .line ~ .line ~ .line > span {
+  transition-delay: 0.16s;
 }
 
 html.hydrated [data-reveal="lines"]:not(.is-in) .line > span {
-  transform: translate3d(0, 110%, 0) rotate(2.5deg);
+  transform: translate3d(0, 105%, 0);
 }
 
 /* Hero elements that arrive after the fire (or right away on repeat visits). */
@@ -481,8 +524,8 @@ html.is-intro [data-late] {
 }
 
 html:not(.is-intro) [data-late] {
-  animation: late-in 1.2s var(--ease-out) both;
-  animation-delay: calc(var(--late, 0) * 120ms + 120ms);
+  animation: late-in 1s var(--ease-out) both;
+  animation-delay: calc(var(--late, 0) * 110ms + 120ms);
 }
 
 /* ------------------------------------------------------------------
@@ -512,12 +555,14 @@ html:not(.is-intro) [data-late] {
   pointer-events: none;
 }
 
+/* Paper tooth: a fine dark noise, multiplied in. */
 .grain {
   position: fixed;
   inset: 0;
   z-index: 150;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0 0.06 0 0 0 1.2 -0.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 
@@ -529,21 +574,10 @@ html.has-cursor * {
 /* ------------------------------------------------------------------
    Keyframes
    ------------------------------------------------------------------ */
-@keyframes ping {
-  0% {
-    opacity: 0.9;
-    transform: scale(0.4);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.7);
-  }
-}
-
 @keyframes late-in {
   from {
     opacity: 0;
-    translate: 0 24px;
+    translate: 0 18px;
   }
   to {
     opacity: 1;
@@ -554,6 +588,17 @@ html.has-cursor * {
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes blink-soft {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  71%,
+  100% {
+    opacity: 0.25;
   }
 }
 
@@ -574,12 +619,12 @@ html.has-cursor * {
 }
 
 @media (max-width: 900px) {
-  .section-head--split {
-    grid-template-columns: 1fr;
+  .section-head--split .section-lede {
+    grid-column: 1 / -1;
   }
 
-  .section-lede {
-    padding-bottom: 0;
+  .paper-grid::before {
+    background-size: calc((100% + var(--col-gap)) / 2) 100%;
   }
 }
 

@@ -4,13 +4,15 @@ Personal portfolio for [deflow.at](https://deflow.at). On the first visit of a s
 
 ## Highlights
 
+- **Paper & charcoal** — warm paper, black ink and a single signal red on a visible four-column grid. No glows or gradients: hierarchy comes from scale, weight and hairline rules. The fire is the only thing that glows, and only while it burns.
+
 - **Burn intro** — the 2001 page is real DOM, clipped by a noisy burn front computed on the CPU; a raw WebGL2 shader draws the charred rim, the glowing seam, flames, smoke, a heat pulse and sparks along the exact same front, while torn ash flakes with glowing rims tumble upwards. Before that, a focused point of light follows the cursor and leaves an accumulating scorch map; hold it still for a second and the paper ignites right there. Click to ignite, `Esc` to skip, replay via “Relive 2001” in the footer or by typing `2001`.
-- **Ember swarm** — the expertise section is pinned while 18,000 embers re-forge into one form per discipline: a firing neural network, `</>`, a build → test → ship → observe loop the sparks flow around, and a shield with a lock. One stateless vertex shader blends per-particle positions with a staggered melt-and-swirl; the cursor parts the embers. Without WebGL2 or with reduced motion it is a plain card list with line drawings — decided before first paint, so nothing jumps.
-- **Ember field** — GPU-animated embers (stateless vertex shader) rise behind the hero and the contact section, react to the cursor and sleep when off screen.
+- **Charcoal swarm** — the expertise section is pinned while 18,000 specks of charcoal re-form into one form per discipline: a firing neural network, `</>`, a build → test → ship → observe loop the dust flows around, and a shield with a lock. One stateless vertex shader blends per-particle positions with a staggered melt-and-swirl; the cursor parts the dust. Without WebGL2 or with reduced motion it is a plain card list with line drawings — decided before first paint, so nothing jumps.
+- **Ash** — GPU-animated ash (stateless vertex shader) leaves the fire red and cools to graphite as it rises through the hero; it reacts to the cursor and sleeps when off screen.
 - **Still hot** — the forged letters re-heat wherever the cursor goes, the contact headline arrives as cold ash and catches fire letter by letter, a heat wave runs through the footer wordmark, and fast cursor moves, clicks and taps throw off sparks.
 - **Live project previews** — each experiment card runs a tiny, interactive canvas sketch (perceptron learning, marble run, ink flow, rule 30 automaton). Code-split, loaded when near the viewport, paused off screen.
-- **Scroll storytelling** — Lenis smooth scrolling, a hero that sinks back as the page moves over it (CSS scroll timeline), words that light up while reading, section rules that burn in like fuses, a burning-fuse timeline, stacking expertise cards and a velocity-reactive marquee.
-- **Details** — magnetic buttons, ember cursor with contextual labels, burning-fuse scroll progress, live Vienna time, copy-to-clipboard email, a 404 that “burned down in 2001”.
+- **Scroll storytelling** — Lenis smooth scrolling, words that are inked in while reading, section rules that draw themselves, a burning-fuse timeline and a velocity-reactive marquee.
+- **Details** — magnetic buttons, an ink cursor with contextual labels, a scroll progress rule, live Vienna time, copy-to-clipboard email, a 404 that “burned down in 2001”.
 
 ## Performance & accessibility
 
@@ -18,7 +20,7 @@ Personal portfolio for [deflow.at](https://deflow.at). On the first visit of a s
 - Every animation loop pauses when its element leaves the viewport or the tab is hidden; mobile devices get fewer particles and a lower resolution.
 - `prefers-reduced-motion` skips the intro, disables smooth scrolling and freezes the sketches on a static frame.
 - Content never depends on JavaScript: hidden states only apply after hydration, and an inline boot script removes the intro again if the app bundle fails to start.
-- Self-hosted, OFL-licensed WOFF2 fonts ([Host Grotesk](https://github.com/Element-Type/HostGrotesk), [Instrument Serif](https://github.com/Instrument/instrument-serif), [Geist Mono](https://github.com/vercel/geist-font)) — licences in [`app/fonts`](app/fonts).
+- Self-hosted, OFL-licensed WOFF2 fonts ([Host Grotesk](https://github.com/Element-Type/HostGrotesk), [Geist Mono](https://github.com/vercel/geist-font)) — licences in [`app/fonts`](app/fonts).
 
 ## Stack
 

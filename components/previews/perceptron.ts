@@ -113,17 +113,17 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
       ctx.lineTo(bx + sx, by + sy);
       ctx.lineTo(ax + sx, ay + sy);
       ctx.closePath();
-      ctx.fillStyle = "rgba(255, 106, 43, 0.075)";
+      ctx.fillStyle = "rgba(224, 64, 27, 0.075)";
       ctx.fill();
 
-      ctx.fillStyle = "rgba(243, 237, 228, 0.07)";
+      ctx.fillStyle = "rgba(20, 18, 16, 0.09)";
       const step = Math.max(18, Math.round(scale / 7));
       for (let gx = (width / 2) % step; gx < width; gx += step) {
         for (let gy = (height / 2) % step; gy < height; gy += step) ctx.fillRect(gx - 0.75, gy - 0.75, 1.5, 1.5);
       }
 
       ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(255, 106, 43, 0.22)";
+      ctx.strokeStyle = "rgba(224, 64, 27, 0.22)";
       ctx.lineWidth = 7;
       ctx.beginPath();
       ctx.moveTo(ax, ay);
@@ -203,10 +203,10 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
       }
 
       ctx.font = font;
-      ctx.fillStyle = "rgba(243, 237, 228, 0.55)";
+      ctx.fillStyle = "rgba(20, 18, 16, 0.7)";
       ctx.fillText(`epoch ${String(epoch).padStart(3, "0")}`, 16, 24);
       ctx.fillText(`accuracy ${Math.round(accuracy() * 100)}%`, 16, 40);
-      ctx.fillStyle = hold > 0 ? INK.amber : "rgba(243, 237, 228, 0.35)";
+      ctx.fillStyle = hold > 0 ? INK.amber : "rgba(20, 18, 16, 0.44)";
       ctx.fillText(hold > 0 ? "converged ✓" : "learning…", 16, 56);
     },
   };

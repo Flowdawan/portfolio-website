@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <main className="lost">
-      <div className="lost__glow" aria-hidden="true" />
       <div className="container lost__inner">
         <p className="kicker">
           <span>404</span>Page not found

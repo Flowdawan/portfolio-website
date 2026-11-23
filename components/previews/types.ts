@@ -12,12 +12,13 @@ export type Sketch = {
 
 export type SketchFactory = (ctx: CanvasRenderingContext2D) => Sketch;
 
+// Ink on paper, like the rest of the site: `bone` is the drawing colour.
 export const INK = {
-  bg: "#100d0b",
-  bone: "#f3ede4",
-  ember: "#ff6a2b",
-  amber: "#ffb65c",
-  deep: "#d93a14",
+  bg: "#e5e0d6",
+  bone: "#141210",
+  ember: "#e0401b",
+  amber: "#e0401b",
+  deep: "#b8300f",
 };
 
 export function monoFont(size: number, weight = 500) {
