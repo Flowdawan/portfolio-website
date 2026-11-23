@@ -1,10 +1,11 @@
 # Florian — Software & AI Engineer
 
-Personal portfolio for [deflow.at](https://deflow.at). On the first visit of a session a deliberately terrible 2001 homepage appears — click anywhere (or wait a moment) and it **burns away in real time**, revealing the new site underneath. The headline letters glow white-hot as the flame front passes over them and cool down to their final colour.
+Personal portfolio for [deflow.at](https://deflow.at). On the first visit of a session a deliberately terrible 2001 homepage appears. The cursor is a burning glass: wherever it rests the paper browns, smokes and finally catches — or click anywhere (or just wait) and the page **burns away in real time**, revealing the new site underneath. The headline letters glow white-hot as the flame front passes over them and cool down to their final colour.
 
 ## Highlights
 
-- **Burn intro** — the 2001 page is real DOM, clipped by a noisy burn front computed on the CPU; a raw WebGL2 shader draws the charred rim, the glowing seam, flames, smoke and sparks along the exact same front. Click to ignite, `Esc` to skip, replay via “Relive 2001” in the footer or by typing `2001`.
+- **Burn intro** — the 2001 page is real DOM, clipped by a noisy burn front computed on the CPU; a raw WebGL2 shader draws the charred rim, the glowing seam, flames, smoke, a heat pulse and sparks along the exact same front, while torn ash flakes with glowing rims tumble upwards. Before that, a focused point of light follows the cursor and leaves an accumulating scorch map; hold it still for a second and the paper ignites right there. Click to ignite, `Esc` to skip, replay via “Relive 2001” in the footer or by typing `2001`.
+- **Ember swarm** — the expertise section is pinned while 18,000 embers re-forge into one form per discipline: a firing neural network, `</>`, a build → test → ship → observe loop the sparks flow around, and a shield with a lock. One stateless vertex shader blends per-particle positions with a staggered melt-and-swirl; the cursor parts the embers. Without WebGL2 or with reduced motion it is a plain card list with line drawings — decided before first paint, so nothing jumps.
 - **Ember field** — GPU-animated embers (stateless vertex shader) rise behind the hero and the contact section, react to the cursor and sleep when off screen.
 - **Still hot** — the forged letters re-heat wherever the cursor goes, the contact headline arrives as cold ash and catches fire letter by letter, a heat wave runs through the footer wordmark, and fast cursor moves, clicks and taps throw off sparks.
 - **Live project previews** — each experiment card runs a tiny, interactive canvas sketch (perceptron learning, marble run, ink flow, rule 30 automaton). Code-split, loaded when near the viewport, paused off screen.
@@ -30,7 +31,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The intro plays once per browser session — append `?intro` to the URL to force it.
+Open [http://localhost:3000](http://localhost:3000). The intro plays once per browser session — append `?intro` to the URL to force it. On machines without a GPU (VMs, headless browsers) the shaders fall back to lighter versions; append `?forcegl` to render the full WebGL effects anyway.
 
 ## Production
 

@@ -110,6 +110,8 @@ let softwareGL: Promise<boolean> | null = null;
 
 /** Resolves (once per page) to true when WebGL would run without a GPU. */
 export function detectSoftwareGL() {
+  // `?forcegl` renders the full shaders even on CPU rasterisers (for testing).
+  if (new URLSearchParams(window.location.search).has("forcegl")) return Promise.resolve(false);
   softwareGL ??= probeInWorker().catch(() => probeOnMainThread());
   return softwareGL;
 }

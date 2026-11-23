@@ -250,140 +250,356 @@ html.hydrated .fuse__item:not(.is-lit) .fuse__label span {
 }
 
 /* ------------------------------------------------------------------
-   Expertise — stacked cards
+   Expertise — the ember swarm
+   Fallback (no WebGL2, reduced motion, no JS): a plain list of cards with a
+   line drawing each. With html.swarm-ok the block is pinned and 18,000 embers
+   re-forge into one form per discipline while the copy changes beside them.
    ------------------------------------------------------------------ */
 .expertise {
   padding-bottom: clamp(30px, 5vw, 70px);
 }
 
-.stack {
+.swarm__canvas,
+.swarm__rail {
+  display: none;
+}
+
+.swarm__stages {
   display: grid;
-  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
-.stack-card {
-  position: relative;
-}
-
-.stack-card__inner {
-  position: relative;
-  display: grid;
-  min-height: min(580px, 74vh);
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(24px, 4vw, 56px);
-  padding: clamp(26px, 4vw, 52px);
-  overflow: hidden;
-  border-radius: 34px;
-  background: linear-gradient(160deg, #1c1612, #120f0d 70%);
-  box-shadow:
-    inset 0 0 0 1px var(--line),
-    0 -30px 80px -30px rgba(0, 0, 0, 0.8);
-  transform: scale(calc(1 - var(--cover, 0) * 0.055));
-  transform-origin: 50% 0;
-}
-
-.stack-card--neural .stack-card__inner {
-  background:
-    radial-gradient(90% 80% at 100% 0%, rgba(255, 210, 138, 0.16), transparent 58%),
-    linear-gradient(160deg, #1d1712, #120f0d 72%);
-}
-
-.stack-card--code .stack-card__inner {
-  background:
-    radial-gradient(90% 80% at 100% 0%, rgba(255, 138, 61, 0.17), transparent 58%),
-    linear-gradient(160deg, #1d1612, #120e0c 72%);
-}
-
-.stack-card--pipeline .stack-card__inner {
-  background:
-    radial-gradient(90% 80% at 100% 0%, rgba(255, 90, 40, 0.17), transparent 58%),
-    linear-gradient(160deg, #1e1511, #120e0c 72%);
-}
-
-.stack-card--shield .stack-card__inner {
-  background:
-    radial-gradient(90% 80% at 100% 0%, rgba(217, 58, 20, 0.22), transparent 58%),
-    linear-gradient(160deg, #1e1410, #110d0b 72%);
-}
-
-.stack-card__shade {
-  position: absolute;
-  inset: 0;
-  border-radius: 34px;
-  background: #080706;
-  opacity: calc(var(--cover, 0) * 0.6);
-  pointer-events: none;
-  transform: scale(calc(1 - var(--cover, 0) * 0.055));
-  transform-origin: 50% 0;
-}
-
-.stack-card__copy {
+.swarm-stage {
   display: flex;
   flex-direction: column;
+  padding: clamp(24px, 3.4vw, 44px);
+  border-radius: 30px;
+  background:
+    radial-gradient(90% 80% at 100% 0%, rgba(255, 138, 61, 0.13), transparent 58%),
+    linear-gradient(160deg, #1c1612, #120f0d 72%);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
-.stack-card__top {
+.swarm-stage__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
-.stack-card__index {
+.swarm-stage__index {
   color: var(--ember);
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 6vw, 5.6rem);
+  font-size: clamp(3rem, 5vw, 4.6rem);
   font-style: italic;
   line-height: 0.8;
 }
 
-.stack-card h3 {
-  margin-top: auto;
-  padding-top: 48px;
-  font-size: clamp(2.3rem, 4.8vw, 4.6rem);
+.swarm-stage h3 {
+  padding-top: 36px;
+  font-size: clamp(2.1rem, 4vw, 3.8rem);
   line-height: 0.95;
   letter-spacing: -0.05em;
 }
 
-.stack-card__desc {
+.swarm-stage__desc {
   max-width: 40ch;
-  margin-top: 16px;
+  margin-top: 14px;
   color: var(--text-2);
-  font-size: 1.06rem;
+  font-size: 1.04rem;
 }
 
-.stack-card__skills {
+.swarm-stage__skills {
   display: flex;
   flex-wrap: wrap;
   row-gap: 4px;
-  margin-top: 28px;
-  padding-top: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--line);
   color: var(--text);
-  font-size: clamp(0.94rem, 1.15vw, 1.05rem);
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
 }
 
-.stack-card__skills li:not(:last-child)::after {
+.swarm-stage__skills li:not(:last-child)::after {
   margin: 0 0.62em;
   color: var(--ember);
   content: "/";
   opacity: 0.75;
 }
 
-.stack-card__visual {
+.swarm-stage__figure {
+  display: none;
+}
+
+.swarm-stage__viz {
   display: grid;
-  min-height: 260px;
+  order: -1;
+  margin-bottom: 26px;
+  aspect-ratio: 4 / 2.4;
   place-items: center;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 22px;
   background: rgba(10, 8, 7, 0.55);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
-@media (min-width: 901px) and (min-height: 680px) {
-  .stack-card {
-    position: sticky;
-    top: calc(var(--nav-h) + 16px + var(--i) * 22px);
+@media (max-width: 900px) {
+  .swarm__stages {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- The pinned film ---------------------------------------------------- */
+html.swarm-ok .swarm {
+  position: relative;
+  height: calc(var(--stages) * 78svh + 100svh);
+  margin-top: clamp(-40px, -3vw, -10px);
+}
+
+html.swarm-ok .swarm__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  background: radial-gradient(42% 52% at 66% 52%, rgba(255, 106, 43, 0.075), transparent 70%);
+}
+
+html.swarm-ok .swarm__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+html.swarm-ok .swarm.is-live .swarm__canvas {
+  opacity: 1;
+}
+
+html.swarm-ok .swarm__layout {
+  position: relative;
+  display: grid;
+  height: 100%;
+  align-content: center;
+  padding-top: var(--nav-h);
+  pointer-events: none;
+}
+
+html.swarm-ok .swarm__stages {
+  display: grid;
+  width: min(32rem, 42%);
+  grid-template-columns: 1fr;
+}
+
+html.swarm-ok .swarm-stage {
+  grid-area: 1 / 1;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.45s ease,
+    visibility 0s 0.45s;
+}
+
+html.swarm-ok .swarm-stage[data-active] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 0.5s ease 0.12s,
+    visibility 0s;
+}
+
+html.swarm-ok .swarm-stage__viz {
+  display: none;
+}
+
+/* Each line of the active discipline rises in on its own beat. */
+html.swarm-ok .swarm-stage__top,
+html.swarm-ok .swarm-stage h3,
+html.swarm-ok .swarm-stage__desc,
+html.swarm-ok .swarm-stage__skills li {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity 0.35s ease,
+    transform 0.6s var(--ease-out);
+}
+
+html.swarm-ok .swarm-stage h3 {
+  padding-top: 28px;
+  font-size: clamp(2.6rem, 5.4vw, 5.6rem);
+  transform: translate3d(0, 0.5em, 0);
+}
+
+html.swarm-ok .swarm-stage[data-active] .swarm-stage__top,
+html.swarm-ok .swarm-stage[data-active] h3,
+html.swarm-ok .swarm-stage[data-active] .swarm-stage__desc,
+html.swarm-ok .swarm-stage[data-active] .swarm-stage__skills li {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s ease var(--delay, 0.15s),
+    transform 0.9s var(--ease-out) var(--delay, 0.15s);
+}
+
+html.swarm-ok .swarm-stage[data-active] h3 {
+  --delay: 0.22s;
+}
+
+html.swarm-ok .swarm-stage[data-active] .swarm-stage__desc {
+  --delay: 0.3s;
+}
+
+html.swarm-ok .swarm-stage[data-active] .swarm-stage__skills li {
+  --delay: calc(0.36s + var(--k) * 0.028s);
+}
+
+html.swarm-ok .swarm-stage__figure {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(26px, 4.5vh, 44px);
+  display: block;
+  color: var(--text-3);
+  text-align: right;
+}
+
+html.swarm-ok .swarm__rail {
+  position: absolute;
+  bottom: clamp(26px, 4.5vh, 44px);
+  left: var(--gutter);
+  display: flex;
+  gap: clamp(14px, 2.2vw, 30px);
+  padding-top: 14px;
+  color: var(--text-3);
+  font-family: var(--font-code);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html.swarm-ok .swarm__rail::before,
+.swarm__fuse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1px;
+  content: "";
+}
+
+html.swarm-ok .swarm__rail::before {
+  right: 0;
+  background: var(--line-2);
+}
+
+html.swarm-ok .swarm__fuse {
+  display: block;
+  width: calc(var(--swarm-p, 0) * 100%);
+  background: linear-gradient(90deg, var(--ember-deep), var(--ember-hot));
+  box-shadow: 0 0 12px rgba(255, 106, 43, 0.6);
+}
+
+html.swarm-ok .swarm__fuse::after {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ember-white);
+  box-shadow:
+    0 0 8px var(--ember-hot),
+    0 0 18px var(--ember);
+  content: "";
+}
+
+.swarm__tick {
+  display: inline-flex;
+  gap: 8px;
+  transition: color 0.4s;
+}
+
+.swarm__tick b {
+  color: var(--text-3);
+  font-weight: 400;
+  transition: color 0.4s;
+}
+
+.swarm__tick[data-active] {
+  color: var(--text);
+}
+
+.swarm__tick[data-active] b {
+  color: var(--ember);
+}
+
+@media (max-width: 900px) {
+  html.swarm-ok .swarm {
+    height: calc(var(--stages) * 70svh + 100svh);
+  }
+
+  html.swarm-ok .swarm__pin {
+    background: radial-gradient(70% 36% at 50% 31%, rgba(255, 106, 43, 0.09), transparent 70%);
+  }
+
+  html.swarm-ok .swarm__pin::after {
+    position: absolute;
+    inset: 52% 0 0;
+    background: linear-gradient(180deg, transparent, rgba(12, 10, 9, 0.88) 38%);
+    content: "";
+    pointer-events: none;
+  }
+
+  html.swarm-ok .swarm__layout {
+    z-index: 1;
+    align-content: end;
+    padding-bottom: 76px;
+  }
+
+  html.swarm-ok .swarm__stages {
+    width: 100%;
+  }
+
+  html.swarm-ok .swarm-stage h3 {
+    padding-top: 14px;
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+
+  html.swarm-ok .swarm-stage__desc {
+    margin-top: 8px;
+    font-size: 0.95rem;
+  }
+
+  html.swarm-ok .swarm-stage__skills {
+    margin-top: 14px;
+    padding-top: 12px;
+    font-size: 0.84rem;
+  }
+
+  html.swarm-ok .swarm-stage__figure {
+    top: calc(var(--nav-h) + 8px);
+    bottom: auto;
+    left: var(--gutter);
+    text-align: left;
+  }
+
+  html.swarm-ok .swarm__rail {
+    bottom: 26px;
+    font-size: 0.62rem;
+  }
+
+  .swarm__tick {
+    font-size: 0;
+  }
+
+  .swarm__tick b {
+    font-size: 0.68rem;
   }
 }
 
@@ -590,10 +806,6 @@ html.hydrated .fuse__item:not(.is-lit) .fuse__label span {
   stroke-width: 2.2;
 }
 
-html.hydrated .stack-card:not(.is-live) .viz *,
-html.hydrated .stack-card:not(.is-live) .viz {
-  animation-play-state: paused;
-}
 
 /* Marquee */
 .marquee {
@@ -1112,21 +1324,6 @@ html.hydrated [data-forge-scene] .forge-ch:not(.is-hot) {
 
   .contact__email {
     align-items: flex-start;
-  }
-
-  .stack-card__inner {
-    min-height: 0;
-    grid-template-columns: 1fr;
-  }
-
-  .stack-card__visual {
-    order: -1;
-    min-height: 0;
-    aspect-ratio: 4 / 2.6;
-  }
-
-  .stack-card h3 {
-    padding-top: 36px;
   }
 }
 

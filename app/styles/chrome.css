@@ -403,3 +403,20 @@ html[data-cursor-state="off"] .cursor {
     transform: translateY(-100%);
   }
 }
+
+/* Over the 2001 page the cursor is a burning glass: a thin lens ring that
+   tightens as the light focuses (--lens, 0–1, set by the intro). */
+.cursor__ring[data-mode="lens"]::before {
+  border-color: rgba(255, 241, 214, calc(0.32 + var(--lens, 0) * 0.5));
+  background: radial-gradient(circle, transparent 52%, rgba(255, 214, 150, 0.08) 70%, transparent 72%);
+  box-shadow: 0 0 calc(var(--lens, 0) * 22px) rgba(255, 138, 61, calc(var(--lens, 0) * 0.55));
+  transform: scale(calc(1.9 - var(--lens, 0) * 1.05));
+  transition:
+    transform 0.18s linear,
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.cursor__ring[data-mode="lens"] + .cursor__dot {
+  opacity: 0;
+}
