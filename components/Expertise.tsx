@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { skillGroups } from "@/data/portfolio";
 import { SkillVisual } from "./SkillVisual";
+import { SwarmCanvas } from "./swarm/SwarmCanvas";
 
 const marqueeWords = ["Design systems", "AI workflows", "Secure software", "Useful automation", "Calm complexity"];
 
@@ -25,39 +26,61 @@ export function Expertise() {
             </h2>
           </div>
           <p className="section-lede" data-reveal>
-            Software, intelligence, infrastructure and security treated as one connected craft.
+            Software, intelligence, infrastructure and security treated as one connected craft — the same embers,
+            forged into a different shape for every job.
           </p>
         </header>
+      </div>
 
-        <div className="stack">
-          {skillGroups.map((group, index) => (
-            <article
-              className={`stack-card stack-card--${group.visual}`}
-              data-stack-card
-              style={{ "--i": index } as CSSProperties}
-              key={group.title}
-            >
-              <div className="stack-card__inner">
-                <div className="stack-card__copy">
-                  <div className="stack-card__top">
-                    <span className="stack-card__index">{group.index}</span>
+      {/* Pinned on capable devices (html.swarm-ok): 18,000 embers re-forge into
+          one form per discipline while the copy changes beside them. Elsewhere a
+          plain list with a line drawing per discipline. */}
+      <div className="swarm" data-swarm style={{ "--stages": skillGroups.length } as CSSProperties}>
+        <div className="swarm__pin">
+          <SwarmCanvas />
+          <div className="container swarm__layout">
+            <ol className="swarm__stages">
+              {skillGroups.map((group, index) => (
+                <li
+                  className="swarm-stage"
+                  data-swarm-stage
+                  data-active={index === 0 ? "" : undefined}
+                  style={{ "--i": index } as CSSProperties}
+                  key={group.title}
+                >
+                  <div className="swarm-stage__top">
+                    <span className="swarm-stage__index">{group.index}</span>
                     <span className="label">{group.skills.length} disciplines</span>
                   </div>
                   <h3>{group.title}</h3>
-                  <p className="stack-card__desc">{group.description}</p>
-                  <ul className="stack-card__skills" aria-label={`${group.title} skills`}>
-                    {group.skills.map((skill) => (
-                      <li key={skill}>{skill}</li>
+                  <p className="swarm-stage__desc">{group.description}</p>
+                  <ul className="swarm-stage__skills" aria-label={`${group.title} skills`}>
+                    {group.skills.map((skill, skillIndex) => (
+                      <li key={skill} style={{ "--k": skillIndex } as CSSProperties}>
+                        {skill}
+                      </li>
                     ))}
                   </ul>
-                </div>
-                <div className="stack-card__visual" aria-hidden="true">
-                  <SkillVisual kind={group.visual} />
-                </div>
-              </div>
-              <span className="stack-card__shade" aria-hidden="true" />
-            </article>
-          ))}
+                  <p className="swarm-stage__figure label" aria-hidden="true">
+                    Fig. {group.index} — {group.figure}
+                  </p>
+                  <div className="swarm-stage__viz" aria-hidden="true">
+                    <SkillVisual kind={group.visual} />
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="swarm__rail" aria-hidden="true">
+              {skillGroups.map((group) => (
+                <span className="swarm__tick" data-swarm-tick key={group.index}>
+                  <b>{group.index}</b>
+                  {group.title}
+                </span>
+              ))}
+              <i className="swarm__fuse" />
+            </div>
+          </div>
         </div>
       </div>
 

@@ -78,10 +78,11 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-// Runs before first paint: flags JS, decides whether the burn intro plays
+// Runs before first paint: flags JS, decides whether the expertise section is
+// pinned as an ember film (WebGL2, motion welcome), whether the burn intro plays
 // (first visit this session, no deep link, no reduced motion — or ?intro), and
 // removes the intro again if the app bundle never starts.
-const boot = `(function(){var d=document.documentElement;d.classList.add("js");try{var q=new URLSearchParams(location.search);var r=matchMedia("(prefers-reduced-motion: reduce)").matches;var s=sessionStorage.getItem("deflow:intro-seen");if(q.has("intro")||(!r&&!s&&!location.hash)){d.classList.add("is-intro","forge-cold");if("scrollRestoration" in history)history.scrollRestoration="manual";setTimeout(function(){if(!window.__introStarted)d.classList.remove("is-intro","forge-cold")},6000)}}catch(e){}})();`;
+const boot = `(function(){var d=document.documentElement;d.classList.add("js");try{var q=new URLSearchParams(location.search);var r=matchMedia("(prefers-reduced-motion: reduce)").matches;if(!r&&typeof WebGL2RenderingContext!=="undefined")d.classList.add("swarm-ok");var s=sessionStorage.getItem("deflow:intro-seen");if(q.has("intro")||(!r&&!s&&!location.hash)){d.classList.add("is-intro","forge-cold");if("scrollRestoration" in history)history.scrollRestoration="manual";setTimeout(function(){if(!window.__introStarted)d.classList.remove("is-intro","forge-cold")},6000)}}catch(e){}})();`;
 
 const person = {
   "@context": "https://schema.org",
