@@ -65,6 +65,10 @@ export function Cursor() {
     };
 
     const evaluate = (target: Element | null) => {
+      if (target?.closest("[data-cursor-lens]")) {
+        setMode("lens");
+        return;
+      }
       const labelled = target?.closest<HTMLElement>("[data-cursor]");
       if (labelled?.dataset.cursor) {
         setMode("label", labelled.dataset.cursor);

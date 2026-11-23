@@ -4,8 +4,16 @@ import { createProgramAsync, GLSL_NOISE, uniforms } from "@/lib/gl";
 // the CPU (see BurnIntro) as a radius per angle around the ignition point and
 // uploaded as a 1D float texture — the same table also clips the DOM, so the hole
 // in the old page and the charred edge drawn here always line up exactly.
+//
+// Before the fire is lit the cursor is a burning glass: a focused point of
+// light that browns the paper it rests on (an accumulated low-res scorch map),
+// lets it smoke, and finally sets it alight.
 
 export const FRONT_SAMPLES = 360;
+/** Scorch map resolution: one cell per SCORCH_CELL css pixels. */
+export const SCORCH_CELL = 6;
+/** Floats per ash flake: x, y, size, heat, angle, flip, seed, alpha. */
+export const FLAKE_STRIDE = 8;
 
 const QUAD_VS = /* glsl */ `#version 300 es
 in vec2 aPos;
@@ -18,7 +26,13 @@ uniform float uDpr;
 uniform vec2 uCenter;
 uniform float uTime;
 uniform float uFlare;
+uniform float uIgnited;
+uniform float uShock;
+uniform vec2 uMouse;
+uniform float uHeat;
+uniform float uCharge;
 uniform sampler2D uFront;
+uniform sampler2D uScorch;
 out vec4 outColor;
 ${GLSL_NOISE}
 const float TAU = 6.28318530718;
@@ -37,26 +51,84 @@ vec4 over(vec4 top, vec4 bottom) { return top + bottom * (1.0 - top.a); }
 
 void main() {
   vec2 p = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
+  float t = uTime;
+  vec3 emit = vec3(0.0);
+  vec4 col = vec4(0.0);
+
+  // Distance to the burn front (> 0: paper that has not burned yet).
   vec2 d = p - uCenter;
   float dist = length(d);
-  float ang = atan(d.y, d.x);
-  float s = dist - frontAt(ang); // > 0: paper that has not burned yet
+  float s = 1e5;
+  if (uIgnited > 0.5) s = dist - frontAt(atan(d.y, d.x));
 
-  vec3 emit = vec3(0.0);
   if (uFlare > 0.001) {
     emit += vec3(1.0, 0.7, 0.36) * exp(-dist / (22.0 + 110.0 * uFlare)) * uFlare * 1.7;
   }
 
-  if (s > 290.0 || s < -120.0) {
+  // A heat pulse races outwards from the ignition point across the paper.
+  if (uShock >= 0.0 && uShock < 0.9 && s > 0.0) {
+    float r = uShock * 1500.0;
+    float ring = exp(-abs(dist - r) / (14.0 + 50.0 * uShock));
+    emit += vec3(1.0, 0.55, 0.2) * ring * (1.0 - uShock / 0.9) * 0.32;
+  }
+
+  // ---- Burning glass: scorch marks and the focused light --------------------
+  vec2 uv = p / uRes;
+  float scorch = texture(uScorch, uv).r;
+  if (s > 0.0 && scorch > 0.003) {
+    float grain = snoise(p / 9.0) * 0.5 + 0.5;
+    float sc = clamp(scorch * 1.25 + (grain - 0.5) * 0.3, 0.0, 1.0);
+    float brown = smoothstep(0.02, 0.5, sc);
+    float charred = smoothstep(0.55, 0.92, sc);
+    vec3 c = mix(vec3(0.5, 0.31, 0.12), vec3(0.06, 0.035, 0.02), charred);
+    float a = brown * mix(0.55, 0.96, charred);
+    col = over(vec4(c * a, a), col);
+    // Fresh char still glows in hairline cracks near the light.
+    float near = exp(-length(p - uMouse) / 46.0) * uHeat;
+    float crack = smoothstep(0.45, 0.8, snoise(p / 4.5 + vec2(0.0, t * 0.8)));
+    emit += vec3(1.0, 0.34, 0.06) * crack * charred * near * 1.3;
+  }
+
+  if (uHeat > 0.002 && uIgnited < 0.5) {
+    vec2 m = p - uMouse;
+    float r2 = dot(m, m);
+    float focus = 1.0 + uCharge * 1.6;
+    float flick = 0.88 + 0.12 * sin(t * 31.0) * sin(t * 13.0);
+    emit += vec3(1.0, 0.98, 0.9) * exp(-r2 / (9.0 * focus)) * 1.6 * uHeat;
+    emit += vec3(1.0, 0.72, 0.35) * exp(-r2 / (240.0 * focus)) * 0.55 * uHeat * flick;
+    emit += vec3(1.0, 0.36, 0.08) * exp(-sqrt(r2) / (30.0 + 40.0 * uCharge)) * 0.32 * uHeat;
+
+    // Smoke curling up from the spot, more of it as the paper heats.
+    float above = clamp(-m.y / 190.0, 0.0, 1.0);
+    if (m.y < 8.0 && above < 1.0) {
+      float w = 10.0 + 70.0 * above;
+      float sway = 16.0 * sin(p.y / 38.0 + t * 1.6) * above;
+      float band = exp(-pow((m.x - sway) / w, 2.0));
+      float nz = snoise(vec2(p.x / 26.0, p.y / 34.0 + t * 1.3)) * 0.5 + 0.5;
+      float a = band * smoothstep(0.35, 0.85, nz) * (1.0 - above) * (0.12 + 0.4 * uCharge) * uHeat;
+      a *= smoothstep(8.0, -6.0, m.y);
+      col = over(vec4(vec3(0.16, 0.14, 0.13) * a, a), col);
+    }
+
+    // Tiny flames start to lick up just before it catches.
+    if (uCharge > 0.45) {
+      float h = clamp(-m.y / (14.0 + 40.0 * uCharge), 0.0, 1.0);
+      float w = exp(-pow(m.x / (6.0 + 9.0 * uCharge * (1.0 - h)), 2.0));
+      float fz = fbm2(vec2(p.x / 9.0, p.y / 12.0 + t * 4.0)) * 0.5 + 0.5;
+      float flame = w * smoothstep(h, h + 0.35, fz) * (1.0 - h) * step(m.y, 4.0);
+      emit += mix(vec3(1.0, 0.9, 0.6), vec3(1.0, 0.36, 0.06), h) * flame * smoothstep(0.45, 1.0, uCharge) * 1.3;
+    }
+  }
+
+  if (uIgnited < 0.5 || s > 290.0 || s < -120.0) {
     float ea = clamp(max(emit.r, max(emit.g, emit.b)), 0.0, 1.0);
-    outColor = vec4(min(emit, vec3(1.0)), ea);
+    outColor = vec4(min(col.rgb + emit, vec3(1.0)), max(col.a, ea));
     return;
   }
 
   vec2 n = dist > 0.5 ? d / dist : vec2(0.0, -1.0);
   float facingUp = clamp(-n.y, 0.0, 1.0);
-  float t = uTime;
-  vec4 col = vec4(0.0);
+  float ang = atan(d.y, d.x);
 
   // Two noise lookups shape the whole edge: a broad one for the scorch and
   // char width, a fine one for the ragged inner rim.
@@ -66,11 +138,11 @@ void main() {
   // Paper side: heat discolouration, then a deep scorch right before the flame.
   if (s > 0.0) {
     float scorchW = 28.0 + 54.0 * broad;
-    float scorch = pow(clamp(1.0 - s / scorchW, 0.0, 1.0), 1.45);
+    float sc = pow(clamp(1.0 - s / scorchW, 0.0, 1.0), 1.45);
     float tint = pow(clamp(1.0 - s / (scorchW * 2.9), 0.0, 1.0), 2.0) * 0.34;
-    vec3 brown = mix(vec3(0.44, 0.25, 0.1), vec3(0.07, 0.035, 0.018), scorch);
-    float a = max(scorch * 0.97, tint);
-    col = vec4(brown * a, a);
+    vec3 brown = mix(vec3(0.44, 0.25, 0.1), vec3(0.07, 0.035, 0.018), sc);
+    float a = max(sc * 0.97, tint);
+    col = over(vec4(brown * a, a), col);
   }
 
   // Smoke curling up from the burning edge.
@@ -146,15 +218,80 @@ void main() {
   o = vec4(c * a, a);
 }`;
 
+// Ash flakes: torn scraps of burnt paper with a glowing rim that tumble upwards.
+// Each is a point sprite; the fragment shader rotates it, squashes it by its
+// flip (tumbling in 3D) and cuts a ragged outline from a few sines.
+const FLAKE_VS = /* glsl */ `#version 300 es
+in vec4 aA; // x, y, size, heat
+in vec4 aB; // angle, flip, seed, alpha
+uniform vec2 uRes;
+uniform float uDpr;
+out float vHeat;
+out float vAngle;
+out float vFlip;
+out float vSeed;
+out float vAlpha;
+void main() {
+  gl_Position = vec4(aA.x / uRes.x * 2.0 - 1.0, 1.0 - aA.y / uRes.y * 2.0, 0.0, 1.0);
+  gl_PointSize = max(2.0, aA.z * uDpr);
+  vHeat = aA.w;
+  vAngle = aB.x;
+  vFlip = aB.y;
+  vSeed = aB.z;
+  vAlpha = aB.w;
+}`;
+
+const FLAKE_FS = /* glsl */ `#version 300 es
+precision mediump float;
+in float vHeat;
+in float vAngle;
+in float vFlip;
+in float vSeed;
+in float vAlpha;
+out vec4 o;
+void main() {
+  vec2 q = gl_PointCoord * 2.0 - 1.0;
+  float c = cos(vAngle);
+  float s = sin(vAngle);
+  q = mat2(c, -s, s, c) * q;
+  q.y /= max(0.12, abs(vFlip));
+  float a = atan(q.y, q.x);
+  float edge = 0.62 + 0.15 * sin(3.0 * a + vSeed) + 0.1 * sin(5.0 * a + vSeed * 2.3) + 0.06 * sin(9.0 * a + vSeed * 4.1);
+  float r = length(q);
+  float inside = 1.0 - smoothstep(edge - 0.06, edge, r);
+  if (inside <= 0.001) discard;
+  float rim = smoothstep(edge - 0.3, edge - 0.04, r);
+  vec3 body = vec3(0.075, 0.055, 0.045) * (0.65 + 0.35 * vFlip * vFlip);
+  vec3 glow = mix(vec3(0.85, 0.16, 0.03), vec3(1.0, 0.62, 0.22), vHeat);
+  vec3 col = body + glow * rim * vHeat * 1.4;
+  float alpha = inside * vAlpha;
+  o = vec4(col * alpha, alpha);
+}`;
+
 export type BurnFrame = {
   time: number;
   cx: number;
   cy: number;
   flare: number;
+  /** Seconds since ignition (negative before). */
+  shock: number;
+  ignited: boolean;
   front: Float32Array;
   drawBurn: boolean;
   embers: Float32Array;
   emberCount: number;
+  flakes: Float32Array;
+  flakeCount: number;
+  mouseX: number;
+  mouseY: number;
+  /** Burning-glass intensity 0..1 (0 = no light on the page). */
+  heat: number;
+  /** How close the focused spot is to catching fire, 0..1. */
+  charge: number;
+  scorch: Uint8Array;
+  scorchW: number;
+  scorchH: number;
+  scorchDirty: boolean;
 };
 
 export type BurnRenderer = {
@@ -178,20 +315,34 @@ export async function createBurnRenderer(canvas: HTMLCanvasElement): Promise<Bur
 
   let burnProgram: WebGLProgram;
   let emberProgram: WebGLProgram;
+  let flakeProgram: WebGLProgram;
   try {
-    // The fire is lit ~1.6 s after load at the earliest, so without parallel
-    // compilation the driver gets a generous head start before we ask.
-    [burnProgram, emberProgram] = await Promise.all([
+    [burnProgram, emberProgram, flakeProgram] = await Promise.all([
       createProgramAsync(gl, QUAD_VS, BURN_FS, 900),
       createProgramAsync(gl, EMBER_VS, EMBER_FS, 900),
+      createProgramAsync(gl, FLAKE_VS, FLAKE_FS, 900),
     ]);
   } catch (error) {
     console.warn(error);
     return null;
   }
 
-  const burnU = uniforms(gl, burnProgram, ["uRes", "uDpr", "uCenter", "uTime", "uFlare", "uFront"] as const);
+  const burnU = uniforms(gl, burnProgram, [
+    "uRes",
+    "uDpr",
+    "uCenter",
+    "uTime",
+    "uFlare",
+    "uIgnited",
+    "uShock",
+    "uMouse",
+    "uHeat",
+    "uCharge",
+    "uFront",
+    "uScorch",
+  ] as const);
   const emberU = uniforms(gl, emberProgram, ["uRes", "uDpr"] as const);
+  const flakeU = uniforms(gl, flakeProgram, ["uRes", "uDpr"] as const);
 
   const quadVao = gl.createVertexArray();
   gl.bindVertexArray(quadVao);
@@ -209,6 +360,17 @@ export async function createBurnRenderer(canvas: HTMLCanvasElement): Promise<Bur
   const pLoc = gl.getAttribLocation(emberProgram, "aP");
   gl.enableVertexAttribArray(pLoc);
   gl.vertexAttribPointer(pLoc, 4, gl.FLOAT, false, 0, 0);
+
+  const flakeVao = gl.createVertexArray();
+  gl.bindVertexArray(flakeVao);
+  const flakeBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, flakeBuffer);
+  const aLoc = gl.getAttribLocation(flakeProgram, "aA");
+  const bLoc = gl.getAttribLocation(flakeProgram, "aB");
+  gl.enableVertexAttribArray(aLoc);
+  gl.vertexAttribPointer(aLoc, 4, gl.FLOAT, false, FLAKE_STRIDE * 4, 0);
+  gl.enableVertexAttribArray(bLoc);
+  gl.vertexAttribPointer(bLoc, 4, gl.FLOAT, false, FLAKE_STRIDE * 4, 16);
   gl.bindVertexArray(null);
 
   const frontTexture = gl.createTexture();
@@ -218,6 +380,16 @@ export async function createBurnRenderer(canvas: HTMLCanvasElement): Promise<Bur
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, FRONT_SAMPLES, 1, 0, gl.RED, gl.FLOAT, new Float32Array(FRONT_SAMPLES));
+
+  const scorchTexture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, scorchTexture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  let scorchW = 0;
+  let scorchH = 0;
 
   let width = 1;
   let height = 1;
@@ -242,15 +414,42 @@ export async function createBurnRenderer(canvas: HTMLCanvasElement): Promise<Bur
         gl.useProgram(burnProgram);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, frontTexture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, FRONT_SAMPLES, 1, gl.RED, gl.FLOAT, frame.front);
+        if (frame.ignited) gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, FRONT_SAMPLES, 1, gl.RED, gl.FLOAT, frame.front);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, scorchTexture);
+        if (frame.scorchW !== scorchW || frame.scorchH !== scorchH) {
+          scorchW = frame.scorchW;
+          scorchH = frame.scorchH;
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, scorchW, scorchH, 0, gl.RED, gl.UNSIGNED_BYTE, frame.scorch);
+        } else if (frame.scorchDirty) {
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, scorchW, scorchH, gl.RED, gl.UNSIGNED_BYTE, frame.scorch);
+        }
         gl.uniform2f(burnU.uRes, width, height);
         gl.uniform1f(burnU.uDpr, ratio);
         gl.uniform2f(burnU.uCenter, frame.cx, frame.cy);
         gl.uniform1f(burnU.uTime, frame.time);
         gl.uniform1f(burnU.uFlare, frame.flare);
+        gl.uniform1f(burnU.uIgnited, frame.ignited ? 1 : 0);
+        gl.uniform1f(burnU.uShock, frame.shock);
+        gl.uniform2f(burnU.uMouse, frame.mouseX, frame.mouseY);
+        gl.uniform1f(burnU.uHeat, frame.heat);
+        gl.uniform1f(burnU.uCharge, frame.charge);
         gl.uniform1i(burnU.uFront, 0);
+        gl.uniform1i(burnU.uScorch, 1);
         gl.bindVertexArray(quadVao);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+
+      if (frame.flakeCount > 0) {
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        gl.useProgram(flakeProgram);
+        gl.uniform2f(flakeU.uRes, width, height);
+        gl.uniform1f(flakeU.uDpr, ratio);
+        gl.bindVertexArray(flakeVao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, flakeBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, frame.flakes.subarray(0, frame.flakeCount * FLAKE_STRIDE), gl.DYNAMIC_DRAW);
+        gl.drawArrays(gl.POINTS, 0, frame.flakeCount);
       }
 
       if (frame.emberCount > 0) {
@@ -269,11 +468,15 @@ export async function createBurnRenderer(canvas: HTMLCanvasElement): Promise<Bur
     destroy() {
       gl.deleteProgram(burnProgram);
       gl.deleteProgram(emberProgram);
+      gl.deleteProgram(flakeProgram);
       gl.deleteBuffer(quad);
       gl.deleteBuffer(emberBuffer);
+      gl.deleteBuffer(flakeBuffer);
       gl.deleteTexture(frontTexture);
+      gl.deleteTexture(scorchTexture);
       gl.deleteVertexArray(quadVao);
       gl.deleteVertexArray(emberVao);
+      gl.deleteVertexArray(flakeVao);
     },
   };
 }

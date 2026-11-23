@@ -83,6 +83,8 @@ export type SkillGroup = {
   title: string;
   description: string;
   visual: SkillVisual;
+  /** Caption for the form the ember swarm takes for this discipline. */
+  figure: string;
   skills: string[];
 };
 
@@ -92,6 +94,7 @@ export const skillGroups: SkillGroup[] = [
     title: "AI engineering",
     description: "From a useful prompt to a dependable production workflow.",
     visual: "neural",
+    figure: "A small neural network, firing",
     skills: [
       "AI",
       "Claude",
@@ -110,6 +113,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Development",
     description: "Products built from interface through API and architecture.",
     visual: "code",
+    figure: "Source, forged from sparks",
     skills: [
       "Full Stack Development",
       "TypeScript",
@@ -134,6 +138,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Systems & delivery",
     description: "The infrastructure and automation that keep software moving.",
     visual: "pipeline",
+    figure: "Build → test → ship → observe, on loop",
     skills: [
       "DevOps",
       "Docker",
@@ -153,6 +158,7 @@ export const skillGroups: SkillGroup[] = [
     title: "Security",
     description: "Security designed in, not bolted on at the end.",
     visual: "shield",
+    figure: "Locked down by default",
     skills: [
       "Security",
       "Security Best Practices",
