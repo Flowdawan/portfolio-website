@@ -8,7 +8,7 @@ type Marble = { x: number; y: number; vx: number; vy: number; trail: number[]; t
 type Ring = { x: number; y: number; life: number; row: number };
 
 const NOTES = ["C", "D", "E", "G", "A"];
-const TONES = ["#ffd9a0", "#ffb65c", "#ff8a3d", "#ff6a2b", "#e8431c", "#ffc98a", "#ff9a52"];
+const TONES = ["#e0401b", "#141210", "#e0401b", "#514c45", "#e0401b", "#141210", "#b8300f"];
 const MARBLE_R = 5.2;
 const PEG_R = 3.2;
 const GRAVITY = 820;
@@ -154,7 +154,7 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
           ctx.fill();
           ctx.globalAlpha = 1;
         }
-        ctx.fillStyle = peg.glow > 0.05 ? TONES[peg.row % TONES.length] : "rgba(243, 237, 228, 0.3)";
+        ctx.fillStyle = peg.glow > 0.05 ? TONES[peg.row % TONES.length] : "rgba(20, 18, 16, 0.38)";
         ctx.beginPath();
         ctx.arc(peg.x, peg.y, PEG_R, 0, Math.PI * 2);
         ctx.fill();
@@ -177,7 +177,7 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
         ctx.beginPath();
         ctx.arc(m.x, m.y, MARBLE_R, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.fillStyle = "rgba(229, 224, 214, 0.9)";
         ctx.beginPath();
         ctx.arc(m.x - 1.6, m.y - 1.8, 1.5, 0, Math.PI * 2);
         ctx.fill();
@@ -190,7 +190,7 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
         ctx.fillText(NOTES[index % NOTES.length], 12, top + index * gapY + 4);
       });
       ctx.globalAlpha = 1;
-      ctx.fillStyle = "rgba(243, 237, 228, 0.55)";
+      ctx.fillStyle = "rgba(20, 18, 16, 0.7)";
       ctx.fillText("pentatonic · 7 rows", 16, 24);
     },
   };

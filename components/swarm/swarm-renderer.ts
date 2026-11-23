@@ -1,7 +1,7 @@
 import { createProgramAsync, uniforms } from "@/lib/gl";
 import { buildSwarm } from "./shapes";
 
-// Draws the ember swarm: every particle carries one position per form and the
+// Draws the ember swarm as charcoal dust on paper: every particle carries one position per form and the
 // vertex shader blends between them (with a per-particle delay and a swirl, so
 // a form melts into embers and re-forges as the next one). The pipeline loop is
 // evaluated analytically so its embers can flow. CPU cost per frame: a handful
@@ -117,16 +117,19 @@ void main() {
 
   float depth = clamp((p.z + 1.1) / 2.2, 0.0, 1.0);
   float twinkle = 0.78 + 0.22 * sin(uTime * (2.0 + 4.0 * aRand.w) + aRand.y * 9.0);
-  vHeat = clamp(0.38 + 0.4 * depth + 0.55 * swirl + bonus + (1.0 - g) * 0.15, 0.0, 1.0);
+  // Charcoal: cold dust is ink; only what is moving (re-forming, firing, parted
+  // by the cursor) turns signal red.
+  vHeat = clamp(swirl * 0.95 + bonus * 0.9, 0.0, 1.0);
 
   float size;
   if (aRand.z > 1.0) {
-    size = (9.0 + 7.0 * (aRand.z - 2.0)) * persp;
-    vAlpha = 0.07 * uFade * g;
+    // Soft smudges, like charcoal rubbed into the paper.
+    size = (10.0 + 8.0 * (aRand.z - 2.0)) * persp;
+    vAlpha = 0.035 * uFade * g;
     vSoft = 1.0;
   } else {
-    size = (1.6 + 2.8 * aRand.z) * persp * (1.0 + 0.35 * swirl);
-    vAlpha = (0.5 + 0.6 * depth) * twinkle * uFade;
+    size = (1.25 + 2.1 * aRand.z) * persp * (1.0 + 0.25 * swirl);
+    vAlpha = (0.32 + 0.5 * depth) * twinkle * uFade * mix(0.45, 1.0, g);
     vSoft = 0.0;
   }
 
@@ -144,10 +147,9 @@ void main() {
   vec2 q = gl_PointCoord * 2.0 - 1.0;
   float r2 = dot(q, q);
   if (r2 > 1.0) discard;
-  float fall = vSoft > 0.5 ? (1.0 - r2) * (1.0 - r2) : exp(-r2 * 7.0) * 1.3 + exp(-r2 * 2.0) * 0.18;
-  vec3 c = mix(vec3(0.62, 0.1, 0.03), vec3(1.0, 0.45, 0.13), smoothstep(0.15, 0.55, vHeat));
-  c = mix(c, vec3(1.0, 0.86, 0.62), smoothstep(0.68, 0.95, vHeat));
-  float a = fall * vAlpha;
+  float fall = vSoft > 0.5 ? (1.0 - r2) * (1.0 - r2) : 1.0 - smoothstep(0.35, 1.0, r2);
+  vec3 c = mix(vec3(0.078, 0.07, 0.063), vec3(0.878, 0.25, 0.106), smoothstep(0.3, 0.85, vHeat));
+  float a = clamp(fall * vAlpha, 0.0, 1.0);
   o = vec4(c * a, a);
 }`;
 
@@ -236,7 +238,7 @@ export async function createSwarmRenderer(canvas: HTMLCanvasElement, count: numb
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.enable(gl.BLEND);
-      gl.blendFunc(gl.ONE, gl.ONE);
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(program);
       gl.uniform1f(u.uTime, frame.time);
       gl.uniform1f(u.uStage, frame.stage);

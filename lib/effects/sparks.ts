@@ -7,10 +7,10 @@ type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: 
 const MAX_SPARKS = 160;
 const TRAIL_SPEED = 1500; // px/s before the cursor starts to shed sparks
 
+// On paper a spark is a short vermilion stroke that cools to ink.
 function sparkColor(heat: number, alpha: number) {
-  if (heat > 0.72) return `rgba(255, 240, 214, ${alpha})`;
-  if (heat > 0.42) return `rgba(255, 168, 82, ${alpha})`;
-  return `rgba(236, 82, 30, ${alpha})`;
+  if (heat > 0.45) return `rgba(224, 64, 27, ${alpha})`;
+  return `rgba(20, 18, 16, ${alpha * 0.8})`;
 }
 
 export function initSparks() {
@@ -61,8 +61,7 @@ export function initSparks() {
       return;
     }
     ctx.clearRect(0, 0, width, height);
-    ctx.globalCompositeOperation = "lighter";
-    ctx.lineCap = "round";
+    ctx.lineCap = "square";
     for (let i = sparks.length - 1; i >= 0; i -= 1) {
       const spark = sparks[i];
       spark.life -= dt;
@@ -84,7 +83,6 @@ export function initSparks() {
       ctx.lineTo(spark.x - spark.vx * 0.028, spark.y - spark.vy * 0.028);
       ctx.stroke();
     }
-    ctx.globalCompositeOperation = "source-over";
     if (sparks.length) {
       raf = requestAnimationFrame(frame);
     } else {

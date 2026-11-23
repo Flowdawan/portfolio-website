@@ -16,15 +16,6 @@ const sans = localFont({
   fallback: ["system-ui", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
 });
 
-const serif = localFont({
-  src: [
-    { path: "./fonts/InstrumentSerif-Regular.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/InstrumentSerif-Italic.woff2", weight: "400", style: "italic" },
-  ],
-  variable: "--font-serif",
-  display: "swap",
-  fallback: ["Iowan Old Style", "Georgia", "serif"],
-});
 
 const mono = localFont({
   src: "./fonts/GeistMono-Variable.woff2",
@@ -74,8 +65,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c0a09",
-  colorScheme: "dark",
+  themeColor: "#eeeae2",
+  colorScheme: "light",
 };
 
 // Runs before first paint: flags JS, decides whether the expertise section is
@@ -98,12 +89,13 @@ const person = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: boot }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }} />
       </head>
       <body>
+        <div className="paper-grid" aria-hidden="true" />
         {children}
         <div className="grain" aria-hidden="true" />
       </body>

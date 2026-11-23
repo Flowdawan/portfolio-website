@@ -4,7 +4,7 @@ import { INK, monoFont, type Sketch } from "./types";
 // Ink particles advected through a slowly shifting noise field, painted with
 // long fading trails. The pointer adds a vortex you can stir the ink with.
 
-const COLORS = ["rgba(255, 106, 43, 0.5)", "rgba(255, 182, 92, 0.42)", "rgba(243, 237, 228, 0.3)"];
+const COLORS = ["rgba(224, 64, 27, 0.5)", "rgba(224, 64, 27, 0.42)", "rgba(20, 18, 16, 0.38)"];
 
 export function create(ctx: CanvasRenderingContext2D): Sketch {
   const noise = createNoise2D(11);
@@ -97,7 +97,7 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
       }
     },
     draw() {
-      ctx.fillStyle = "rgba(16, 13, 11, 0.065)";
+      ctx.fillStyle = "rgba(229, 224, 214, 0.08)";
       ctx.fillRect(0, 0, width, height);
       ctx.lineWidth = 1.1;
       ctx.lineCap = "round";
@@ -115,7 +115,7 @@ export function create(ctx: CanvasRenderingContext2D): Sketch {
       const label = `${count} particles · noise flow`;
       ctx.fillStyle = INK.bg;
       ctx.fillRect(10, 10, ctx.measureText(label).width + 12, 22);
-      ctx.fillStyle = "rgba(243, 237, 228, 0.55)";
+      ctx.fillStyle = "rgba(20, 18, 16, 0.7)";
       ctx.fillText(label, 16, 24);
     },
   };
